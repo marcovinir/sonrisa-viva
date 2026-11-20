@@ -1,5 +1,7 @@
 import type { RouteObject } from "react-router";
+import { ActivarPage } from "./auth/pages/ActivarPage";
 import { LoginPage } from "./auth/pages/LoginPage";
+import { RecuperarPage } from "./auth/pages/RecuperarPage";
 import { EnConstruccion } from "./estructura/EnConstruccion";
 import { PanelLayout } from "./estructura/PanelLayout";
 import { IrAPrimeraSeccion, RutaPanel } from "./estructura/RutaPanel";
@@ -12,6 +14,12 @@ const seccion = (ruta: string, pagina: React.ReactNode): RouteObject => ({
 
 export const rutasPanel: RouteObject[] = [
   { path: "/panel/login", element: <LoginPage /> },
+  { path: "/panel/recuperar", element: <RecuperarPage /> },
+  { path: "/panel/activar/:uid/:token", element: <ActivarPage key="activar" modo="activar" /> },
+  {
+    path: "/panel/restablecer/:uid/:token",
+    element: <ActivarPage key="restablecer" modo="restablecer" />,
+  },
   {
     path: "/panel",
     element: <PanelLayout />,

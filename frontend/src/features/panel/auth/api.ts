@@ -49,3 +49,21 @@ export function useLogout() {
     },
   });
 }
+
+export type ModoContrasena = "activar" | "restablecer";
+
+/** Activa la cuenta o restablece la contraseña con el enlace del correo. */
+export function useEstablecerContrasena(modo: ModoContrasena) {
+  return useMutation({
+    mutationFn: (datos: { uid: string; token: string; password: string }) =>
+      api(`/auth/${modo}/`, { metodo: "POST", cuerpo: datos }),
+  });
+}
+
+/** Pide el enlace para restablecer; el backend responde igual exista o no la cuenta. */
+export function useRecuperar() {
+  return useMutation({
+    mutationFn: (datos: { email: string }) =>
+      api("/auth/recuperar/", { metodo: "POST", cuerpo: datos }),
+  });
+}
