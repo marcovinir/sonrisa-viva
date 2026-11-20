@@ -127,3 +127,45 @@ def cancelar_por_paciente(cita: Cita, notificador: Notificador | None = None) ->
         cita.paciente.email, correos.ASUNTO_CANCELADA, correos.texto_cancelada(cita)
     )
     return cita
+
+
+# --- Panel: cambios de estado --------------------------------------------------------
+
+TRANSICIONES = {
+    EstadoCita.CONFIRMADA: {EstadoCita.CANCELADA, EstadoCita.COMPLETADA, EstadoCita.NO_ASISTIO},
+}
+
+
+def cambiar_estado(
+    cita: Cita, nuevo: str, hecho_por, notificador: Notificador | None = None
+) -> Cita:
+    from rest_framework.exceptions import PermissionDenied
+
+    from apps.comun.permisos import MENSAJE_SIN_PERMISO
+    from apps.cuentas.permisos import CITAS_GESTIONAR_TODAS, CITAS_MARCAR_ASISTENCIA
+
+    nuevo = EstadoCita(nuevo)
+    gestiona_todas = hecho_por.tiene_permiso(CITAS_GESTIONAR_TODAS)
+    if nuevo == EstadoCita.CANCELADA and not gestiona_todas:
+        raise PermissionDenied(MENSAJE_SIN_PERMISO)
+    if nuevo in (EstadoCita.COMPLETADA, EstadoCita.NO_ASISTIO):
+        es_suya = cita.dentista.usuario_id == hecho_por.pk
+        if not hecho_por.tiene_permiso(CITAS_MARCAR_ASISTENCIA) or not (es_suya or gestiona_todas):
+            raise PermissionDenied(MENSAJE_SIN_PERMISO)
+    if nuevo not in TRANSICIONES.get(cita.estado, set()):
+        raise ValidationError(
+            reglas.TRANSICION_INVALIDA.format(
+                actual=EstadoCita(cita.estado).label, nuevo=nuevo.label
+            )
+        )
+    if nuevo in (EstadoCita.COMPLETADA, EstadoCita.NO_ASISTIO) and cita.fin > reglas.ahora():
+        raise ValidationError(reglas.CITA_NO_TERMINADA)
+    cita.estado = nuevo
+    cita.save(update_fields=["estado"])
+    if nuevo == EstadoCita.CANCELADA:
+        (notificador or obtener_notificador()).enviar(
+            cita.paciente.email,
+            correos.ASUNTO_CANCELADA_CLINICA,
+            correos.texto_cancelada(cita, por_clinica=True),
+        )
+    return cita

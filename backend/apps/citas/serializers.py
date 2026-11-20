@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Cita
+from .models import Cita, EstadoCita
 
 
 class PacienteReservaSerializer(serializers.Serializer):
@@ -18,6 +18,50 @@ class ReservaSerializer(serializers.Serializer):
     inicio = serializers.DateTimeField()
     dentista = serializers.IntegerField(required=False, allow_null=True)
     paciente = PacienteReservaSerializer()
+
+
+class CitaPanelSerializer(serializers.ModelSerializer):
+    paciente = serializers.SerializerMethodField()
+    dentista = serializers.SerializerMethodField()
+    servicio = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Cita
+        fields = [
+            "id",
+            "inicio",
+            "fin",
+            "estado",
+            "precio_colones",
+            "notas_internas",
+            "paciente",
+            "dentista",
+            "servicio",
+            "creado_en",
+        ]
+        read_only_fields = ["inicio", "fin", "estado", "precio_colones", "creado_en"]
+
+    def get_paciente(self, cita: Cita) -> dict:
+        p = cita.paciente
+        return {
+            "id": p.id,
+            "nombre": p.nombre,
+            "apellidos": p.apellidos,
+            "email": p.email,
+            "telefono": p.telefono,
+        }
+
+    def get_dentista(self, cita: Cita) -> dict:
+        u = cita.dentista.usuario
+        return {"id": cita.dentista_id, "nombre": u.nombre, "apellidos": u.apellidos}
+
+    def get_servicio(self, cita: Cita) -> dict:
+        s = cita.servicio
+        return {"id": s.id, "nombre": s.nombre, "duracion_min": s.duracion_min}
+
+
+class CambioEstadoSerializer(serializers.Serializer):
+    estado = serializers.ChoiceField(choices=EstadoCita.choices)
 
 
 class ReprogramarSerializer(serializers.Serializer):
