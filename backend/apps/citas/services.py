@@ -7,7 +7,7 @@ from rest_framework.exceptions import ValidationError
 
 from apps.clinica.models import Dentista, Servicio
 from apps.comun.errores import Conflicto
-from apps.comun.notificaciones import Notificador, obtener_notificador
+from apps.comun.notificaciones import Notificador, enviar_sin_fallar, obtener_notificador
 from apps.cuentas.managers import normalizar_email
 
 from . import correos, reglas, selectors
@@ -83,8 +83,11 @@ def reservar(
             )
         )
 
-    (notificador or obtener_notificador()).enviar(
-        paciente_obj.email, correos.ASUNTO_CONFIRMADA, correos.texto_confirmada(cita, token)
+    enviar_sin_fallar(
+        notificador or obtener_notificador(),
+        paciente_obj.email,
+        correos.ASUNTO_CONFIRMADA,
+        correos.texto_confirmada(cita, token),
     )
     return cita, token
 
@@ -113,8 +116,11 @@ def reprogramar(cita: Cita, nuevo_inicio: datetime, notificador: Notificador | N
     cita.inicio = nuevo_inicio
     cita.fin = nuevo_inicio + duracion
     _guardar(cita)
-    (notificador or obtener_notificador()).enviar(
-        cita.paciente.email, correos.ASUNTO_REPROGRAMADA, correos.texto_reprogramada(cita)
+    enviar_sin_fallar(
+        notificador or obtener_notificador(),
+        cita.paciente.email,
+        correos.ASUNTO_REPROGRAMADA,
+        correos.texto_reprogramada(cita),
     )
     return cita
 
@@ -123,8 +129,11 @@ def cancelar_por_paciente(cita: Cita, notificador: Notificador | None = None) ->
     _exigir_cambiable(cita)
     cita.estado = EstadoCita.CANCELADA
     cita.save(update_fields=["estado"])
-    (notificador or obtener_notificador()).enviar(
-        cita.paciente.email, correos.ASUNTO_CANCELADA, correos.texto_cancelada(cita)
+    enviar_sin_fallar(
+        notificador or obtener_notificador(),
+        cita.paciente.email,
+        correos.ASUNTO_CANCELADA,
+        correos.texto_cancelada(cita),
     )
     return cita
 
@@ -163,7 +172,8 @@ def cambiar_estado(
     cita.estado = nuevo
     cita.save(update_fields=["estado"])
     if nuevo == EstadoCita.CANCELADA:
-        (notificador or obtener_notificador()).enviar(
+        enviar_sin_fallar(
+            notificador or obtener_notificador(),
             cita.paciente.email,
             correos.ASUNTO_CANCELADA_CLINICA,
             correos.texto_cancelada(cita, por_clinica=True),
