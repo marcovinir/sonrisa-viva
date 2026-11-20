@@ -9,7 +9,7 @@ from rest_framework.exceptions import ValidationError
 
 from apps.comun.errores import Conflicto
 
-from .models import CategoriaServicio, Dentista, HorarioSemanal, Servicio
+from .models import Bloqueo, CategoriaServicio, Dentista, HorarioSemanal, Servicio
 
 EN_USO_SERVICIO = "No se puede borrar porque tiene citas asociadas; desactívalo en su lugar."
 EN_USO_CATEGORIA = (
@@ -51,6 +51,29 @@ def borrar(obj: Servicio | CategoriaServicio) -> None:
 
 def _en_rejilla(t: time) -> bool:
     return t.second == 0 and t.microsecond == 0 and t.minute % 15 == 0
+
+
+BLOQUEO_CON_CITAS = "Hay {n} citas confirmadas en ese rango; cancélalas o reprográmalas primero."
+
+
+@transaction.atomic
+def guardar_bloqueo(
+    dentista: Dentista, inicio, fin, motivo: str = "", bloqueo: Bloqueo | None = None
+) -> Bloqueo:
+    """Crea o actualiza un bloqueo si no deja citas confirmadas dentro."""
+    from apps.citas.models import Cita, EstadoCita
+
+    if inicio >= fin:
+        raise ValidationError({"fin": ["El fin debe ser posterior al inicio."]})
+    n = Cita.objects.filter(
+        dentista=dentista, estado=EstadoCita.CONFIRMADA, inicio__lt=fin, fin__gt=inicio
+    ).count()
+    if n:
+        raise Conflicto(BLOQUEO_CON_CITAS.format(n=n))
+    bloqueo = bloqueo or Bloqueo(dentista=dentista)
+    bloqueo.dentista, bloqueo.inicio, bloqueo.fin, bloqueo.motivo = dentista, inicio, fin, motivo
+    bloqueo.save()
+    return bloqueo
 
 
 @transaction.atomic

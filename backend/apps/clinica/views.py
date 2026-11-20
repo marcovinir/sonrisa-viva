@@ -1,15 +1,18 @@
 from django.http import Http404
+from django.utils.dateparse import parse_date
 from rest_framework import generics, mixins, viewsets
 from rest_framework.decorators import action
+from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
-from apps.comun.permisos import tiene_permiso
-from apps.cuentas.permisos import CATALOGO_GESTIONAR, DENTISTAS_GESTIONAR
+from apps.comun.permisos import MENSAJE_SIN_PERMISO, tiene_alguno, tiene_permiso
+from apps.cuentas.permisos import BLOQUEOS_PROPIOS, CATALOGO_GESTIONAR, DENTISTAS_GESTIONAR
 
 from . import selectors, services
-from .models import CategoriaServicio, Dentista, Servicio
+from .models import Bloqueo, CategoriaServicio, Dentista, Servicio
 from .serializers import (
+    BloqueoSerializer,
     CategoriaSerializer,
     DentistaPanelSerializer,
     DentistaPublicoSerializer,
@@ -106,6 +109,58 @@ class DentistaPanelViewSet(
         bloques.is_valid(raise_exception=True)
         creados = services.reemplazar_horario(dentista, bloques.validated_data)
         return Response(HorarioSerializer(creados, many=True).data)
+
+
+class BloqueoPanelViewSet(viewsets.ModelViewSet):
+    """El admin gestiona los bloqueos de todos; cada dentista, solo los suyos."""
+
+    permission_classes = [tiene_alguno(DENTISTAS_GESTIONAR, BLOQUEOS_PROPIOS)]
+    serializer_class = BloqueoSerializer
+
+    def _gestiona_todos(self) -> bool:
+        return self.request.user.tiene_permiso(DENTISTAS_GESTIONAR)
+
+    def _mi_dentista(self) -> Dentista:
+        perfil = Dentista.objects.filter(usuario=self.request.user).first()
+        if perfil is None:
+            raise PermissionDenied(MENSAJE_SIN_PERMISO)
+        return perfil
+
+    def get_queryset(self):
+        qs = Bloqueo.objects.select_related("dentista")
+        params = self.request.query_params
+        if self._gestiona_todos():
+            if dentista := params.get("dentista"):
+                qs = qs.filter(dentista_id=dentista)
+        else:
+            qs = qs.filter(dentista__usuario=self.request.user)
+        if desde := parse_date(params.get("desde") or ""):
+            qs = qs.filter(fin__date__gte=desde)
+        if hasta := parse_date(params.get("hasta") or ""):
+            qs = qs.filter(inicio__date__lte=hasta)
+        return qs
+
+    def _guardar(self, serializer, bloqueo=None):
+        datos = serializer.validated_data
+        if self._gestiona_todos():
+            dentista = datos.get("dentista") or getattr(bloqueo, "dentista", None)
+            if dentista is None:
+                raise ValidationError({"dentista": ["Este campo es requerido."]})
+        else:
+            dentista = self._mi_dentista()
+        serializer.instance = services.guardar_bloqueo(
+            dentista,
+            datos.get("inicio", getattr(bloqueo, "inicio", None)),
+            datos.get("fin", getattr(bloqueo, "fin", None)),
+            datos.get("motivo", getattr(bloqueo, "motivo", "")),
+            bloqueo=bloqueo,
+        )
+
+    def perform_create(self, serializer):
+        self._guardar(serializer)
+
+    def perform_update(self, serializer):
+        self._guardar(serializer, bloqueo=serializer.instance)
 
 
 class MiPerfilView(generics.RetrieveAPIView):
