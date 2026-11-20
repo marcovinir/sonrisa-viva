@@ -18,3 +18,13 @@ class UsuarioYoSerializer(serializers.ModelSerializer):
 class LoginSerializer(serializers.Serializer):
     email = serializers.CharField()
     password = serializers.CharField(trim_whitespace=False)
+
+
+class EstablecerContrasenaSerializer(serializers.Serializer):
+    uid = serializers.CharField()
+    token = serializers.CharField()
+    password = serializers.CharField(trim_whitespace=False)
+
+
+class RecuperarSerializer(serializers.Serializer):
+    email = serializers.CharField()

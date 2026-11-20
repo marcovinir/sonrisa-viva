@@ -8,8 +8,14 @@ from rest_framework.response import Response
 from rest_framework.throttling import ScopedRateThrottle
 from rest_framework.views import APIView
 
+from . import services
 from .managers import normalizar_email
-from .serializers import LoginSerializer, UsuarioYoSerializer
+from .serializers import (
+    EstablecerContrasenaSerializer,
+    LoginSerializer,
+    RecuperarSerializer,
+    UsuarioYoSerializer,
+)
 
 MENSAJE_LOGIN_INVALIDO = "Correo o contraseña incorrectos."
 
@@ -56,3 +62,35 @@ class LogoutView(APIView):
 class YoView(APIView):
     def get(self, request):
         return Response(UsuarioYoSerializer(request.user).data)
+
+
+MENSAJE_ENLACE_INVALIDO = "El enlace no es válido o ya fue usado."
+
+
+class EstablecerContrasenaView(APIView):
+    """Sirve para activar la cuenta y para restablecer la contraseña (mismo mecanismo)."""
+
+    permission_classes = [AllowAny]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = "login"
+
+    def post(self, request):
+        datos = EstablecerContrasenaSerializer(data=request.data)
+        datos.is_valid(raise_exception=True)
+        try:
+            services.establecer_contrasena(**datos.validated_data)
+        except services.TokenInvalido:
+            raise ValidationError({"non_field_errors": [MENSAJE_ENLACE_INVALIDO]}) from None
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class RecuperarView(APIView):
+    permission_classes = [AllowAny]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = "login"
+
+    def post(self, request):
+        datos = RecuperarSerializer(data=request.data)
+        datos.is_valid(raise_exception=True)
+        services.enviar_enlace_recuperacion(datos.validated_data["email"])
+        return Response(status=status.HTTP_204_NO_CONTENT)
