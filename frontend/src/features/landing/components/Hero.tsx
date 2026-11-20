@@ -1,7 +1,7 @@
 import type { CSSProperties } from "react";
 import { colones } from "../../../shared/lib/formato";
 import { BotonEnlace } from "../../../shared/ui/Boton";
-import { useServicios } from "../api";
+import { useServicios } from "../../../shared/api/catalogo";
 
 const retraso = (ms: number) => ({ "--retraso": `${ms}ms` }) as CSSProperties;
 

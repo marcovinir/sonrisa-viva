@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { api } from "../../shared/api/cliente";
+import { api } from "./cliente";
 
 export type Categoria = { id: number; nombre: string; orden?: number };
 

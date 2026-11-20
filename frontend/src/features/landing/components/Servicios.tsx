@@ -5,7 +5,7 @@ import { Chip } from "../../../shared/ui/Chip";
 import { Esqueleto, EstadoError } from "../../../shared/ui/Estado";
 import { IlustracionServicio } from "../../../shared/ui/IlustracionServicio";
 import { Revelar } from "../../../shared/ui/Revelar";
-import { useCategorias, useServicios, type Servicio } from "../api";
+import { useCategorias, useServicios, type Servicio } from "../../../shared/api/catalogo";
 import { Rotulo, Titulo } from "./Secciones";
 
 export function TarjetaServicio({ servicio, indice }: { servicio: Servicio; indice: number }) {
