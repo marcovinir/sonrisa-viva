@@ -1,15 +1,18 @@
 from django.shortcuts import get_object_or_404
+from rest_framework import status
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from apps.clinica.models import Dentista, Servicio
 
-from . import selectors
+from . import selectors, services
 from .serializers import (
     ConsultaDiasSerializer,
     ConsultaDisponibilidadSerializer,
     HoraLibreSerializer,
+    ReservaSerializer,
+    ResumenCitaSerializer,
 )
 
 
@@ -40,6 +43,23 @@ class DisponibilidadView(PublicoMixin, APIView):
                 "horas": HoraLibreSerializer(horas, many=True).data,
             }
         )
+
+
+class ReservaView(APIView):
+    permission_classes = [AllowAny]
+    throttle_scope = "reservas"
+
+    def post(self, request):
+        pedido = ReservaSerializer(data=request.data)
+        pedido.is_valid(raise_exception=True)
+        datos = pedido.validated_data
+        cita, _token = services.reservar(
+            servicio_id=datos["servicio"],
+            inicio=datos["inicio"],
+            paciente=datos["paciente"],
+            dentista_id=datos.get("dentista"),
+        )
+        return Response(ResumenCitaSerializer(cita).data, status=status.HTTP_201_CREATED)
 
 
 class DiasDisponiblesView(PublicoMixin, APIView):
