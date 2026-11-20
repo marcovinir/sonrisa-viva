@@ -87,6 +87,16 @@ def test_filtros_fecha_estado_dentista_q(admin, dentista, otro, servicio, citas)
     assert admin.get(f"{URL}?servicio={servicio.id}").json()["count"] == 3
 
 
+def test_orden_mas_recientes_primero(admin, dentista, servicio, citas):
+    tarde = crear_cita(dentista, servicio, h(9, dia=4), h(10, dia=4), email="t@x.test")
+    ids = [c["id"] for c in admin.get(URL).json()["results"]]
+    assert ids[-1] == tarde.id  # por defecto, de la más antigua a la más nueva
+    ids = [c["id"] for c in admin.get(f"{URL}?orden=-inicio").json()["results"]]
+    assert ids[0] == tarde.id
+    # Un valor desconocido no rompe: se usa el orden por defecto.
+    assert admin.get(f"{URL}?orden=paciente__email").json()["results"][-1]["id"] == tarde.id
+
+
 def test_marcar_completada_despues_de_terminar(dentista, citas):
     r = cliente_de(dentista.usuario).post(
         f"{URL}{citas['mia'].id}/estado/", {"estado": "completada"}, format="json"

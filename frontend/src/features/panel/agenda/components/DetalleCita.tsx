@@ -1,12 +1,12 @@
-import { useState } from "react";
+import { useId, useState } from "react";
 import { ApiError } from "../../../../shared/api/cliente";
 import { Boton } from "../../../../shared/ui/Boton";
 import { useSesion } from "../../auth/useSesion";
-import { Dialogo } from "../../ui/Dialogo";
+import { InsigniaEstado } from "../../ui/InsigniaEstado";
 import { useAviso } from "../../ui/avisosContexto";
 import { useCambiarEstado, useGuardarNotas, type CitaPanel } from "../api";
-import { ESTADO_LARGO, ESTADOS } from "../estilos";
 import { diaCorto, estadoVisual, horaCorta } from "../semana";
+import { DialogoCancelar } from "./DialogoCancelar";
 
 const Dato = ({ rotulo, valor }: { rotulo: string; valor: string }) => (
   <div className="rounded-xl bg-marfil px-3 py-2.5">
@@ -24,11 +24,11 @@ export function DetalleCita({ cita, ahora }: { cita: CitaPanel; ahora: Date }) {
   const { mostrar } = useAviso();
   const cambiar = useCambiarEstado();
   const guardarNotas = useGuardarNotas();
+  const idNotas = useId();
   const [notas, setNotas] = useState(cita.notas_internas);
   const [confirmarCancelar, setConfirmarCancelar] = useState(false);
 
   const estado = estadoVisual(cita, ahora);
-  const e = ESTADOS[estado];
   const nombre = `${cita.paciente.nombre} ${cita.paciente.apellidos}`;
   const iniciales = `${cita.paciente.nombre[0] ?? ""}${cita.paciente.apellidos[0] ?? ""}`;
   const marca = puede("citas.marcar_asistencia");
@@ -55,21 +55,6 @@ export function DetalleCita({ cita, ahora }: { cita: CitaPanel; ahora: Date }) {
     );
   };
 
-  const cancelar = () =>
-    cambiar.mutate(
-      { id: cita.id, estado: "cancelada" },
-      {
-        onSuccess: () => {
-          setConfirmarCancelar(false);
-          mostrar("Cita cancelada. Le avisamos al paciente por correo.");
-        },
-        onError: (err) => {
-          setConfirmarCancelar(false);
-          mostrar(mensajeDe(err), "error");
-        },
-      },
-    );
-
   return (
     <>
       <div className="flex items-center gap-3">
@@ -90,15 +75,7 @@ export function DetalleCita({ cita, ahora }: { cita: CitaPanel; ahora: Date }) {
         <Dato rotulo="DÍA" valor={diaCorto(cita.inicio)} />
         <Dato rotulo="HORA" valor={`${horaCorta(cita.inicio)} – ${horaCorta(cita.fin)}`} />
       </div>
-      <span
-        className="inline-flex items-center gap-2 self-start rounded-full px-3.5 py-1.5 text-[13px] font-bold"
-        style={{
-          background: estado === "por_marcar" ? "#F6EDE0" : e.fondo,
-          color: estado === "por_marcar" ? "#6B5330" : e.texto,
-        }}
-      >
-        {ESTADO_LARGO[estado]}
-      </span>
+      <InsigniaEstado estado={estado} largo />
       <dl className="m-0 grid grid-cols-[80px_1fr] gap-2 text-sm">
         <dt className="font-bold">Teléfono</dt>
         <dd className="m-0 text-texto-2">
@@ -112,19 +89,19 @@ export function DetalleCita({ cita, ahora }: { cita: CitaPanel; ahora: Date }) {
         </dd>
       </dl>
       <div className="flex flex-col gap-2">
-        <label htmlFor="notas-internas" className="text-sm font-bold">
+        <label htmlFor={idNotas} className="text-sm font-bold">
           Notas internas
         </label>
         <textarea
-          id="notas-internas"
+          id={idNotas}
           rows={3}
           value={notas}
           onChange={(ev) => setNotas(ev.target.value)}
           onBlur={alSalirNotas}
-          aria-describedby="notas-ayuda"
+          aria-describedby={`${idNotas}-ayuda`}
           className="resize-y rounded-xl border-[1.5px] border-[#CFC3AE] px-3 py-2.5 text-sm font-medium text-tinta transition-[border-color,box-shadow] hover:border-[#8FA4AA] focus:shadow-[0_0_0_4px_rgba(19,80,95,.12)] focus:outline-none"
         />
-        <p id="notas-ayuda" className="m-0 text-xs text-texto-3">
+        <p id={`${idNotas}-ayuda`} className="m-0 text-xs text-texto-3">
           Solo las ve el equipo de la clínica. Se guardan al salir del campo.
         </p>
       </div>
@@ -169,30 +146,10 @@ export function DetalleCita({ cita, ahora }: { cita: CitaPanel; ahora: Date }) {
         </p>
       ) : null}
 
-      <Dialogo
-        abierto={confirmarCancelar}
-        titulo="¿Cancelar esta cita?"
+      <DialogoCancelar
+        cita={confirmarCancelar ? cita : null}
         onCerrar={() => setConfirmarCancelar(false)}
-        acciones={
-          <>
-            <Boton variante="claro" onClick={() => setConfirmarCancelar(false)}>
-              No, volver
-            </Boton>
-            <Boton
-              variante="peligro"
-              onClick={cancelar}
-              cargando={cambiar.isPending}
-              textoCargando="Cancelando…"
-            >
-              Sí, cancelar
-            </Boton>
-          </>
-        }
-      >
-        Se cancela la cita de <strong className="text-tinta">{nombre}</strong> del{" "}
-        {diaCorto(cita.inicio).toLowerCase()} a las {horaCorta(cita.inicio)}. Le enviaremos un
-        correo al paciente con el aviso. Esto no se puede deshacer.
-      </Dialogo>
+      />
     </>
   );
 }

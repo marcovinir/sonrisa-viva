@@ -134,6 +134,8 @@ def citas_panel(usuario, filtros) -> QuerySet[Cita]:
             | Q(paciente__apellidos__icontains=q)
             | Q(paciente__email__icontains=q)
         )
+    if filtros.get("orden") == "-inicio":  # la lista del panel: más recientes primero
+        qs = qs.order_by("-inicio")
     return qs
 
 

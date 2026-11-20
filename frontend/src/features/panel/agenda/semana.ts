@@ -131,3 +131,10 @@ export function diaCorto(fecha: string | Date): string {
   const nombre = NOMBRES_DIA[p.diaSemana];
   return `${nombre[0].toUpperCase()}${nombre.slice(1)} ${p.dia}`;
 }
+
+/** «Lun 25 may» (para listas que abarcan varios meses). */
+export function fechaCorta(fecha: string | Date): string {
+  const p = partesCR(fecha);
+  const dia = NOMBRES_DIA[p.diaSemana].slice(0, 3);
+  return `${dia[0].toUpperCase()}${dia.slice(1)} ${p.dia} ${NOMBRES_MES[p.mes - 1].slice(0, 3)}`;
+}

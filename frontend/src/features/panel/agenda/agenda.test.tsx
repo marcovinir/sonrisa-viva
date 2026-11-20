@@ -246,6 +246,9 @@ describe("Agenda semanal", () => {
       expect(screen.queryByRole("button", { name: /María Jiménez/ })).not.toBeInTheDocument(),
     );
     expect(cuerpos).toEqual([{ estado: "cancelada" }]);
+    expect(
+      await screen.findByText("Cita cancelada. Le avisamos al paciente por correo."),
+    ).toBeInTheDocument();
   });
 
   it("crear bloqueo con 409 muestra el mensaje en el diálogo", async () => {
