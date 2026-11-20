@@ -1,10 +1,11 @@
 import { createBrowserRouter } from "react-router";
+import { LandingPage } from "../features/landing/pages/LandingPage";
 import { PaginaSimple } from "./paginas/PaginaSimple";
 
 export const rutas = [
   {
     path: "/",
-    element: <PaginaSimple titulo="Sonrisa Viva" texto="Sitio en construcción." />,
+    element: <LandingPage />,
   },
   {
     path: "/panel/*",
