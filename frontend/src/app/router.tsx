@@ -1,5 +1,6 @@
 import { createBrowserRouter } from "react-router";
 import { LandingPage } from "../features/landing/pages/LandingPage";
+import { ConfirmadaPage } from "../features/reserva/pages/ConfirmadaPage";
 import { ReservaPage } from "../features/reserva/pages/ReservaPage";
 import { PaginaSimple } from "./paginas/PaginaSimple";
 
@@ -9,6 +10,7 @@ export const rutas = [
     element: <LandingPage />,
   },
   { path: "/reservar", element: <ReservaPage /> },
+  { path: "/reservar/confirmada", element: <ConfirmadaPage /> },
   {
     path: "/panel/*",
     element: (

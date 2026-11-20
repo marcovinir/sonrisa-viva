@@ -2,17 +2,25 @@ import { useEffect } from "react";
 import { Link } from "react-router";
 import { useDentistas, useServicios, type Dentista } from "../../../shared/api/catalogo";
 import { Logo } from "../../../shared/ui/Logo";
+import { PasoDatos } from "../components/PasoDatos";
 import { PasoDentista } from "../components/PasoDentista";
+import { PasoHora } from "../components/PasoHora";
 import { PasoServicio } from "../components/PasoServicio";
 import { Pasos } from "../components/Pasos";
 import { ResumenCita } from "../components/ResumenCita";
-import { TituloPaso } from "../components/TituloPaso";
 import { useAsistente } from "../estado";
 
 export function ReservaPage() {
   const asistente = useAsistente();
   const { paso, servicioId, dentista, inicio, elegir } = asistente;
-  const aviso = asistente.aviso === "servicio" ? "Ese servicio ya no está disponible." : null;
+  const AVISOS: Record<string, string> = {
+    servicio: "Ese servicio ya no está disponible.",
+    ocupada: "Esa hora acaba de ocuparse, elige otra.",
+    "no-disponible": "Esa hora ya no está disponible.",
+  };
+  const textoAviso = asistente.aviso ? (AVISOS[asistente.aviso] ?? null) : null;
+  const aviso = asistente.aviso === "servicio" ? textoAviso : null;
+  const avisoHora = asistente.aviso && asistente.aviso !== "servicio" ? textoAviso : null;
   const servicios = useServicios();
   const todos = useDentistas();
 
@@ -84,17 +92,24 @@ export function ReservaPage() {
                 elegido={dentista}
                 onElegir={(d) => elegir({ dentista: d, inicio: null })}
               />
-            ) : paso === "hora" ? (
-              <section>
-                <TituloPaso descripcion="Solo te mostramos horas en las que la cita cabe completa.">
-                  Elige el día y la hora
-                </TituloPaso>
-              </section>
-            ) : (
-              <section>
-                <TituloPaso>¿A nombre de quién?</TituloPaso>
-              </section>
-            )}
+            ) : paso === "hora" && servicioId ? (
+              <PasoHora
+                servicioId={servicioId}
+                dentista={dentista}
+                fecha={asistente.fecha}
+                inicio={inicio}
+                aviso={avisoHora}
+                onElegirFecha={(f) => elegir({ fecha: f, inicio: null })}
+                onElegirHora={(i) => elegir({ inicio: i, fecha: i ? asistente.fecha : null })}
+              />
+            ) : paso === "datos" && servicioId && inicio ? (
+              <PasoDatos
+                servicioId={servicioId}
+                dentista={dentista}
+                inicio={inicio}
+                onHoraPerdida={(motivo) => elegir({ inicio: null, aviso: motivo })}
+              />
+            ) : null}
           </div>
           <div className="min-w-0 flex-[1_1_300px]">
             <ResumenCita servicio={servicio} nombreDentista={nombreDentista} inicio={inicio} />
