@@ -11,11 +11,9 @@ describe("App", () => {
     ).toBeInTheDocument();
   });
 
-  it("el panel muestra el marcador del Plan 4", async () => {
+  it("el panel sin sesión pide iniciar sesión", async () => {
     window.history.pushState({}, "", "/panel");
     render(<App />);
-    expect(
-      await screen.findByRole("heading", { name: /panel en construcción/i }),
-    ).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: /iniciar sesión/i })).toBeInTheDocument();
   });
 });
