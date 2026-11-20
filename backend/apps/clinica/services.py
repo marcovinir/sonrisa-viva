@@ -53,6 +53,20 @@ def _en_rejilla(t: time) -> bool:
     return t.second == 0 and t.microsecond == 0 and t.minute % 15 == 0
 
 
+def bloquear_agenda(dentista_id: int) -> None:
+    """Toma la agenda del dentista hasta que termine la transacción (SELECT … FOR UPDATE).
+
+    Las operaciones que comparan citas con bloqueos (reservar, reprogramar, guardar un bloqueo)
+    pasan por aquí: la segunda en llegar espera a que la primera confirme y entonces la ve.
+    Dos citas entre sí ya las protege la restricción `cita_sin_traslape` de PostgreSQL.
+    """
+    list(Dentista.objects.select_for_update().filter(pk=dentista_id).only("pk"))
+
+
+def hay_bloqueo(dentista_id: int, inicio, fin) -> bool:
+    return Bloqueo.objects.filter(dentista_id=dentista_id, inicio__lt=fin, fin__gt=inicio).exists()
+
+
 BLOQUEO_CON_CITAS = "Hay {n} citas confirmadas en ese rango; cancélalas o reprográmalas primero."
 BLOQUEO_CON_UNA_CITA = "Hay 1 cita confirmada en ese rango; cancélala o reprográmala primero."
 
@@ -66,6 +80,7 @@ def guardar_bloqueo(
 
     if inicio >= fin:
         raise ValidationError({"fin": ["El fin debe ser posterior al inicio."]})
+    bloquear_agenda(dentista.pk)  # una reserva en curso termina antes de contar sus citas
     n = Cita.objects.filter(
         dentista=dentista, estado=EstadoCita.CONFIRMADA, inicio__lt=fin, fin__gt=inicio
     ).count()
