@@ -4,9 +4,12 @@ from collections import defaultdict
 from datetime import date, datetime, time, timedelta
 from typing import TypedDict
 
+from django.db.models import Q, QuerySet
 from django.utils import timezone
+from django.utils.dateparse import parse_date
 
 from apps.clinica.models import Bloqueo, Dentista, HorarioSemanal, Servicio
+from apps.cuentas.permisos import CITAS_VER_TODAS
 
 from . import reglas
 from .disponibilidad import Intervalo, horas_libres
@@ -106,3 +109,36 @@ def dias_con_disponibilidad(
         return []
     dias = [desde + timedelta(days=n) for n in range((hasta - desde).days + 1)]
     return [d for d, horas in _calcular(servicio, dias, dentista).items() if horas]
+
+
+def citas_panel(usuario, filtros) -> QuerySet[Cita]:
+    """Citas que ve el usuario en el panel: todas (admin) o solo las suyas (dentista)."""
+    qs = Cita.objects.select_related("paciente", "dentista__usuario", "servicio").order_by("inicio")
+    if not usuario.tiene_permiso(CITAS_VER_TODAS):
+        qs = qs.filter(dentista__usuario=usuario)
+    zona = timezone.get_current_timezone()
+    if desde := _fecha(filtros.get("desde")):
+        qs = qs.filter(inicio__gte=datetime.combine(desde, time.min, tzinfo=zona))
+    if hasta := _fecha(filtros.get("hasta")):
+        qs = qs.filter(
+            inicio__lt=datetime.combine(hasta + timedelta(days=1), time.min, tzinfo=zona)
+        )
+    for campo in ("dentista", "servicio"):
+        if (valor := filtros.get(campo) or "").isdigit():
+            qs = qs.filter(**{f"{campo}_id": int(valor)})
+    if estado := filtros.get("estado"):
+        qs = qs.filter(estado=estado)
+    if q := (filtros.get("q") or "").strip():
+        qs = qs.filter(
+            Q(paciente__nombre__icontains=q)
+            | Q(paciente__apellidos__icontains=q)
+            | Q(paciente__email__icontains=q)
+        )
+    return qs
+
+
+def _fecha(valor):
+    try:
+        return parse_date(valor or "")
+    except ValueError:
+        return None
