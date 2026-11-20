@@ -151,6 +151,18 @@ describe("Agenda semanal", () => {
     await waitFor(() => expect(document.title).toBe("Mi agenda · Panel Sonrisa Viva"));
   });
 
+  it("una cita fuera de 8–17 extiende la grilla para que se vea", async () => {
+    conSesion(YO_DENTISTA);
+    backend();
+    citas.push(cita(5, "2026-03-03", "18:00", "18:45", "Tarde Tardía", "Limpieza dental"));
+    renderEn("/panel/agenda");
+    const tarde = await tarjeta(/Tarde Tardía/);
+    const columna = tarde.parentElement!;
+    expect(parseFloat(tarde.style.top)).toBeLessThan(parseFloat(columna.style.height));
+    // El rótulo de la hora (fuera de las tarjetas) llega hasta las 18:00.
+    expect(screen.getAllByText("18:00").filter((e) => !e.closest("button"))).toHaveLength(1);
+  });
+
   it("la línea Ahora aparece en la semana actual", async () => {
     conSesion(YO_DENTISTA);
     backend();

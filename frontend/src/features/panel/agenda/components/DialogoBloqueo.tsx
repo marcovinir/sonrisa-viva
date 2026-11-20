@@ -4,11 +4,11 @@ import { Boton } from "../../../../shared/ui/Boton";
 import { Dialogo } from "../../ui/Dialogo";
 import { useAviso } from "../../ui/avisosContexto";
 import { useCrearBloqueo } from "../api";
-import { HORA_FIN, HORA_INICIO, isoCR } from "../semana";
+import { isoCR } from "../semana";
 
-/** Horas en la rejilla de 15 min entre la apertura y el cierre. */
-const HORAS = Array.from({ length: (HORA_FIN - HORA_INICIO) * 4 + 1 }, (_, i) => {
-  const min = HORA_INICIO * 60 + i * 15;
+/** Horas en la rejilla de 15 min, de 6:00 a 20:00 (el mismo rango que el editor de horario). */
+const HORAS = Array.from({ length: (20 - 6) * 4 + 1 }, (_, i) => {
+  const min = 6 * 60 + i * 15;
   return `${String(Math.floor(min / 60)).padStart(2, "0")}:${String(min % 60).padStart(2, "0")}`;
 });
 const etiquetaHora = (hhmm: string) => hhmm.replace(/^0/, "");

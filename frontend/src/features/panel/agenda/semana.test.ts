@@ -7,6 +7,7 @@ import {
   isoCR,
   lunesDe,
   posicion,
+  rangoGrilla,
   sumarDias,
   textoFaltan,
   textoSemana,
@@ -94,5 +95,15 @@ describe("semana", () => {
   it("fechaCorta lleva el día de la semana y el mes", () => {
     expect(fechaCorta("2026-05-25T15:30:00-06:00")).toBe("Lun 25 may");
     expect(fechaCorta("2026-12-02T23:30:00-06:00")).toBe("Mié 2 dic");
+  });
+
+  it("rangoGrilla abarca 8–17 y se extiende con horarios o citas fuera de ese rango", () => {
+    expect(rangoGrilla([], [])).toEqual({ inicio: 8, fin: 17 });
+    expect(
+      rangoGrilla([{ dia_semana: 0, hora_inicio: "07:00:00", hora_fin: "19:30:00" }], []),
+    ).toEqual({ inicio: 7, fin: 20 });
+    expect(
+      rangoGrilla([], [{ inicio: "2026-03-02T17:30:00-06:00", fin: "2026-03-02T18:15:00-06:00" }]),
+    ).toEqual({ inicio: 8, fin: 19 });
   });
 });

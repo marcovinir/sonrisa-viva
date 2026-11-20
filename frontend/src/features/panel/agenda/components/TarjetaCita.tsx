@@ -9,16 +9,19 @@ export function TarjetaCita({
   estado,
   seleccionada,
   retraso,
+  horaInicio,
   onElegir,
 }: {
   cita: CitaPanel;
   estado: EstadoVisual;
   seleccionada: boolean;
   retraso: number;
+  /** Primera hora de la grilla (8 salvo que el horario empiece antes). */
+  horaInicio: number;
   onElegir: () => void;
 }) {
   const e = ESTADOS[estado];
-  const { top, alto } = posicion(cita.inicio, cita.fin);
+  const { top, alto } = posicion(cita.inicio, cita.fin, horaInicio);
   const paciente = `${cita.paciente.nombre} ${cita.paciente.apellidos}`;
   const ini = horaCorta(cita.inicio);
   const fin = horaCorta(cita.fin);
