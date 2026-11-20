@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   diasSemana,
+  fechaCorta,
   estadoVisual,
   franjasDelDia,
   isoCR,
@@ -88,5 +89,10 @@ describe("semana", () => {
     expect(textoFaltan(90)).toBe("en 1 h 30 min");
     expect(textoFaltan(120)).toBe("en 2 h");
     expect(textoFaltan(60 * 24 * 2 + 5)).toBe("en 2 días");
+  });
+
+  it("fechaCorta lleva el día de la semana y el mes", () => {
+    expect(fechaCorta("2026-05-25T15:30:00-06:00")).toBe("Lun 25 may");
+    expect(fechaCorta("2026-12-02T23:30:00-06:00")).toBe("Mié 2 dic");
   });
 });

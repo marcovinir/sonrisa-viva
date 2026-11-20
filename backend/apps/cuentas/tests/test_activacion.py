@@ -36,7 +36,8 @@ def uid_y_token(texto: str, tipo: str) -> dict:
     return {"uid": m.group(1), "token": m.group(2)}
 
 
-def test_activacion_envia_correo_con_enlace(nuevo):
+def test_activacion_envia_correo_con_enlace(nuevo, settings):
+    settings.FRONTEND_URL = "http://localhost:5173"  # independiente del .env local
     enviar_enlace_activacion(nuevo)
     (envio,) = NotificadorMemoria.enviados
     assert envio["destinatario"] == "dra.lopez@x.test"
