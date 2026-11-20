@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import CategoriaServicio, Servicio
+from .models import CategoriaServicio, Dentista, HorarioSemanal, Servicio
 
 
 class CategoriaSerializer(serializers.ModelSerializer):
@@ -66,3 +66,65 @@ class ServicioPanelSerializer(serializers.ModelSerializer):
         ):
             raise serializers.ValidationError("Ya existe un servicio con ese slug.")
         return valor
+
+
+class DentistaPublicoSerializer(serializers.ModelSerializer):
+    nombre = serializers.CharField(source="usuario.nombre")
+    apellidos = serializers.CharField(source="usuario.apellidos")
+    servicios = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Dentista
+        fields = [
+            "id",
+            "nombre",
+            "apellidos",
+            "especialidad",
+            "biografia",
+            "foto_url",
+            "servicios",
+        ]
+
+    def get_servicios(self, dentista: Dentista) -> list[int]:
+        return sorted(s.id for s in dentista.activos)
+
+
+class UsuarioMiniSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    email = serializers.EmailField()
+    nombre = serializers.CharField()
+    apellidos = serializers.CharField()
+    is_active = serializers.BooleanField()
+
+
+class HorarioSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = HorarioSemanal
+        fields = ["dia_semana", "hora_inicio", "hora_fin"]
+        extra_kwargs = {"dia_semana": {"min_value": 0, "max_value": 6}}
+
+
+class DentistaPanelSerializer(serializers.ModelSerializer):
+    usuario = UsuarioMiniSerializer(read_only=True)
+    servicios = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=Servicio.objects.all(), required=False
+    )
+    horarios = HorarioSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Dentista
+        fields = [
+            "id",
+            "usuario",
+            "especialidad",
+            "biografia",
+            "foto_url",
+            "visible_en_web",
+            "servicios",
+            "horarios",
+        ]
+
+    def to_representation(self, instance):
+        datos = super().to_representation(instance)
+        datos["servicios"] = sorted(datos["servicios"])
+        return datos
