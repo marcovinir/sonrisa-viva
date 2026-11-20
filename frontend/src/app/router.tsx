@@ -1,5 +1,6 @@
 import { createBrowserRouter } from "react-router";
 import { LandingPage } from "../features/landing/pages/LandingPage";
+import { ReservaPage } from "../features/reserva/pages/ReservaPage";
 import { PaginaSimple } from "./paginas/PaginaSimple";
 
 export const rutas = [
@@ -7,6 +8,7 @@ export const rutas = [
     path: "/",
     element: <LandingPage />,
   },
+  { path: "/reservar", element: <ReservaPage /> },
   {
     path: "/panel/*",
     element: (

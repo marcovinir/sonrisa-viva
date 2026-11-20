@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router";
 import { Esqueleto, EstadoError } from "../../../shared/ui/Estado";
 import { Revelar } from "../../../shared/ui/Revelar";
-import { useDentistas, type Dentista } from "../api";
+import { useDentistas, type Dentista } from "../../../shared/api/catalogo";
 import { Rotulo, Titulo } from "./Secciones";
 
 const iniciales = (d: Dentista) => `${d.nombre[0] ?? ""}${d.apellidos[0] ?? ""}`.toUpperCase();
