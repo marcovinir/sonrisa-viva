@@ -161,3 +161,28 @@ def test_reserva_paciente_invalido_400_con_campos(listo, servicio):
     assert r.status_code == 400
     campos = r.json()["campos"]
     assert "paciente" in campos or {"nombre", "email", "telefono"} <= set(campos)
+
+
+class NotificadorRoto:
+    def enviar(self, *args, **kwargs):
+        raise UnicodeEncodeError("charmap", "₡", 0, 1, "sin mapa")
+
+
+def test_fallo_del_correo_no_rompe_la_reserva(listo, servicio, monkeypatch, caplog):
+    from apps.citas import services
+
+    monkeypatch.setattr(services, "obtener_notificador", lambda: NotificadorRoto())
+    r = reservar(servicio, h(9))
+    assert r.status_code == 201, r.content
+    assert Cita.objects.count() == 1
+    assert "No se pudo enviar el correo" in caplog.text
+
+
+def test_fallo_del_correo_no_rompe_la_cancelacion(listo, servicio, monkeypatch):
+    from apps.citas import services
+
+    cita, token = services.reservar(servicio.id, h(9), PACIENTE)
+    monkeypatch.setattr(services, "obtener_notificador", lambda: NotificadorRoto())
+    assert cliente_de().delete(f"/api/v1/citas/gestion/{token}/").status_code == 204
+    cita.refresh_from_db()
+    assert cita.estado == "cancelada"
