@@ -60,7 +60,8 @@ REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "apps.comun.paginacion.PaginacionEstandar",
     "PAGE_SIZE": 20,
     "EXCEPTION_HANDLER": "apps.comun.errores.manejador_excepciones",
-    "DEFAULT_THROTTLE_RATES": {"login": "10/min"},
+    "DEFAULT_THROTTLE_CLASSES": ["rest_framework.throttling.ScopedRateThrottle"],
+    "DEFAULT_THROTTLE_RATES": {"login": "10/min", "publico": "60/min", "reservas": "10/min"},
 }
 
 SESSION_COOKIE_HTTPONLY = True

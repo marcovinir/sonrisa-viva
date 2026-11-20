@@ -1,4 +1,4 @@
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import APIException, ValidationError
 from rest_framework.views import exception_handler
 
 MENSAJE_VALIDACION = "Revisa los datos marcados."
@@ -34,3 +34,11 @@ def manejador_excepciones(exc, context):
 
     respuesta.data = {"detalle": detalle, "campos": campos}
     return respuesta
+
+
+class Conflicto(APIException):
+    """El pedido choca con el estado actual de los datos (HTTP 409)."""
+
+    status_code = 409
+    default_detail = "El pedido choca con el estado actual de los datos."
+    default_code = "conflicto"
