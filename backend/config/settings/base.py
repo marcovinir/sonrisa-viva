@@ -19,6 +19,8 @@ INSTALLED_APPS = [
     "rest_framework",
     "apps.comun",
     "apps.cuentas",
+    "apps.clinica",
+    "apps.citas",
 ]
 
 MIDDLEWARE = [
