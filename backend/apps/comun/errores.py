@@ -12,6 +12,18 @@ def _a_texto(valor) -> str:
     return str(valor)
 
 
+def _aplanar(errores: dict, prefijo: str = "") -> dict[str, list[str]]:
+    """{"paciente": {"email": [...]}} → {"paciente.email": [...]}: cada error va a su campo."""
+    campos: dict[str, list[str]] = {}
+    for clave, valor in errores.items():
+        ruta = f"{prefijo}{clave}"
+        if isinstance(valor, dict):
+            campos.update(_aplanar(valor, f"{ruta}."))
+        else:
+            campos[ruta] = [str(e) for e in (valor if isinstance(valor, list) else [valor])]
+    return campos
+
+
 def manejador_excepciones(exc, context):
     """Da a todos los errores de la API la forma {"detalle": str, "campos": {...}}."""
     respuesta = exception_handler(exc, context)
@@ -22,9 +34,7 @@ def manejador_excepciones(exc, context):
     if isinstance(exc, ValidationError):
         if isinstance(datos, dict):
             no_campo = datos.pop("non_field_errors", None)
-            campos = {
-                k: [str(e) for e in (v if isinstance(v, list) else [v])] for k, v in datos.items()
-            }
+            campos = _aplanar(datos)
             detalle = _a_texto(no_campo) if no_campo else MENSAJE_VALIDACION
         else:
             campos, detalle = {}, _a_texto(datos)

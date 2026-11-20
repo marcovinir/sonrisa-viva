@@ -181,7 +181,7 @@ def test_reserva_paciente_invalido_400_con_campos(listo, servicio):
     )
     assert r.status_code == 400
     campos = r.json()["campos"]
-    assert "paciente" in campos or {"nombre", "email", "telefono"} <= set(campos)
+    assert {"paciente.nombre", "paciente.email", "paciente.telefono"} <= set(campos)
 
 
 class NotificadorRoto:

@@ -131,4 +131,27 @@ describe("Paso de datos y envío", () => {
     expect(await screen.findByText("Ese correo no se puede usar.")).toBeInTheDocument();
     expect(screen.getByLabelText("Correo electrónico")).toHaveAttribute("aria-invalid", "true");
   });
+
+  it("un error anidado del backend (paciente.email) se muestra en su campo", async () => {
+    servidor.use(
+      http.post("/api/v1/citas/", () =>
+        HttpResponse.json(
+          {
+            detalle: "Revisa los datos marcados.",
+            campos: {
+              "paciente.email": ["Introduzca una dirección de correo electrónico válida."],
+            },
+          },
+          { status: 400 },
+        ),
+      ),
+    );
+    renderEn(RUTA);
+    await llenar();
+    await userEvent.click(screen.getByRole("button", { name: "Confirmar la cita" }));
+    expect(
+      await screen.findByText("Introduzca una dirección de correo electrónico válida."),
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText("Correo electrónico")).toHaveAttribute("aria-invalid", "true");
+  });
 });
