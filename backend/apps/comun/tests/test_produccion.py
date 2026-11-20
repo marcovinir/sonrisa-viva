@@ -1,4 +1,4 @@
-"""Settings de producción (Vercel + Supabase + Brevo).
+"""Settings de producción (Vercel + Supabase + Resend).
 
 Se cargan en un proceso aparte para no mezclarlos con los settings de las pruebas.
 """
@@ -31,6 +31,7 @@ print(json.dumps({
     "email_host": settings.EMAIL_HOST,
     "email_port": settings.EMAIL_PORT,
     "email_tls": settings.EMAIL_USE_TLS,
+    "email_user": settings.EMAIL_HOST_USER,
     "frontend_url": settings.FRONTEND_URL,
     "csrf": settings.CSRF_TRUSTED_ORIGINS,
     "hsts": settings.SECURE_HSTS_SECONDS,
@@ -84,10 +85,11 @@ def test_produccion_usa_cache_en_base():
     assert _settings()["cache"] == "django.core.cache.backends.db.DatabaseCache"
 
 
-def test_produccion_envia_por_smtp_de_brevo():
+def test_produccion_envia_por_smtp_de_resend():
     s = _settings()
     assert s["email_backend"] == "django.core.mail.backends.smtp.EmailBackend"
-    assert (s["email_host"], s["email_port"], s["email_tls"]) == ("smtp-relay.brevo.com", 587, True)
+    assert (s["email_host"], s["email_port"], s["email_tls"]) == ("smtp.resend.com", 587, True)
+    assert s["email_user"] == "resend"  # Resend usa ese usuario fijo y la API key como clave
 
 
 def test_produccion_lee_las_urls_del_entorno():
