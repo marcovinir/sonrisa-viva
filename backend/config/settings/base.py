@@ -18,6 +18,7 @@ INSTALLED_APPS = [
     "django.contrib.postgres",
     "rest_framework",
     "apps.comun",
+    "apps.cuentas",
 ]
 
 MIDDLEWARE = [
@@ -47,6 +48,8 @@ USE_I18N = True
 USE_TZ = True
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+AUTH_USER_MODEL = "cuentas.Usuario"
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": ["rest_framework.authentication.SessionAuthentication"],
