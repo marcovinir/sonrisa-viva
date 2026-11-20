@@ -43,6 +43,14 @@ jobs:
       - run: ruff format --check .
       - run: python manage.py makemigrations --check --dry-run
       - run: pytest -q
+      - name: check --deploy (settings de producción)
+        run: python manage.py check --deploy --fail-level WARNING
+        env:
+          DJANGO_SETTINGS_MODULE: config.settings.produccion
+          SECRET_KEY: ci-una-clave-larga-solo-para-revisar-los-settings-0123456789abcdef
+          ALLOWED_HOSTS: sonrisa-viva-api.vercel.app
+          CSRF_TRUSTED_ORIGINS: https://sonrisa.marcovinir.dev
+          FRONTEND_URL: https://sonrisa.marcovinir.dev
 
   frontend:
     name: frontend
