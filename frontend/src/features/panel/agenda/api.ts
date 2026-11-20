@@ -26,7 +26,15 @@ export type Bloqueo = { id: number; dentista: number; inicio: string; fin: strin
 
 export type DentistaPanel = {
   id: number;
-  usuario: { id: number; email: string; nombre: string; apellidos: string; is_active: boolean };
+  usuario: {
+    id: number;
+    email: string;
+    nombre: string;
+    apellidos: string;
+    is_active: boolean;
+    /** false mientras no elija su contraseña (la cuenta sigue inactiva). */
+    activado: boolean;
+  };
   especialidad: string;
   biografia: string;
   foto_url: string;

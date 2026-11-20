@@ -56,6 +56,7 @@ function backend() {
               nombre: "Laura",
               apellidos: "Vargas Rojas",
               is_active: true,
+              activado: true,
             },
             especialidad: "",
             biografia: "",

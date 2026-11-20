@@ -77,25 +77,28 @@ export function GraficoServicios({ datos }: { datos: FilaServicio[] }) {
               </BarChart>
             </ResponsiveContainer>
           </div>
-          <table className="sr-only">
-            <caption>Citas por servicio</caption>
-            <thead>
-              <tr>
-                <th scope="col">Servicio</th>
-                <th scope="col">Citas</th>
-                <th scope="col">Atendidas</th>
-              </tr>
-            </thead>
-            <tbody>
-              {top.map((s) => (
-                <tr key={s.id}>
-                  <th scope="row">{s.nombre}</th>
-                  <td>{s.total}</td>
-                  <td>{s.completadas}</td>
+          {/* Un <table> ignora width: 1px; el div sr-only sí lo recorta. */}
+          <div className="sr-only">
+            <table>
+              <caption>Citas por servicio</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Servicio</th>
+                  <th scope="col">Citas</th>
+                  <th scope="col">Atendidas</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {top.map((s) => (
+                  <tr key={s.id}>
+                    <th scope="row">{s.nombre}</th>
+                    <td>{s.total}</td>
+                    <td>{s.completadas}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </>
       )}
     </figure>

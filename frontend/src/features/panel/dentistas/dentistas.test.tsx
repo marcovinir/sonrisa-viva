@@ -22,6 +22,7 @@ const laura = (): DentistaPanel => ({
     nombre: "Laura",
     apellidos: "Vargas Rojas",
     is_active: true,
+    activado: true,
   },
   especialidad: "Odontología general",
   biografia: "Diez años de experiencia.",
@@ -41,6 +42,7 @@ const diego = (): DentistaPanel => ({
     nombre: "Diego",
     apellidos: "Quesada Araya",
     is_active: false,
+    activado: false,
   },
   especialidad: "",
   biografia: "",
@@ -129,7 +131,8 @@ describe("Dentistas", () => {
     expect(items).toHaveLength(2);
     expect(within(items[0]).getByText("Visible")).toBeInTheDocument();
     expect(within(items[1]).getByText("Oculto en la web")).toBeInTheDocument();
-    expect(within(items[1]).getByText("Cuenta inactiva")).toBeInTheDocument();
+    expect(within(items[1]).getByText("Pendiente de activar")).toBeInTheDocument();
+    expect(within(items[1]).queryByText("Cuenta inactiva")).not.toBeInTheDocument();
     expect(
       await screen.findByRole("heading", { name: "Laura Vargas Rojas", level: 2 }),
     ).toBeInTheDocument();

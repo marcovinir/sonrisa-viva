@@ -17,13 +17,14 @@ import { DialogoNuevoUsuario } from "../components/DialogoNuevoUsuario";
 const CONTROL =
   "min-h-11 w-full rounded-xl border-[1.5px] border-[#CFC3AE] bg-white px-3 text-sm font-medium text-tinta";
 const ACCION =
-  "min-h-10 rounded-full px-3 text-[13px] font-bold transition-colors duration-200 hover:bg-marfil";
+  "min-h-11 rounded-full px-3 text-[13px] font-bold transition-colors duration-200 hover:bg-marfil";
 
+/** La cuenta nace inactiva y se activa cuando su dueño elige la contraseña. */
 const estadoDe = (u: UsuarioPanel) =>
-  !u.is_active
-    ? { texto: "Inactivo", clase: "bg-[#F1EEE8] text-texto-2" }
-    : !u.activado
-      ? { texto: "Pendiente de activar", clase: "bg-[#F6EDE0] text-[#6B5330]" }
+  !u.activado
+    ? { texto: "Pendiente de activar", clase: "bg-[#F6EDE0] text-[#6B5330]" }
+    : !u.is_active
+      ? { texto: "Inactivo", clase: "bg-[#F1EEE8] text-texto-2" }
       : { texto: "Activo", clase: "bg-[#EAF3EA] text-[#1F4A28]" };
 
 /** Nombre y apellidos editables en la misma fila. */
@@ -169,7 +170,7 @@ export function UsuariosPage() {
               Editar nombre
             </button>
           ) : null}
-          {u.is_active && u.activado === false ? (
+          {!u.activado ? (
             <button
               type="button"
               aria-label={`Reenviar activación a ${nombre(u)}`}
@@ -179,8 +180,8 @@ export function UsuariosPage() {
               Reenviar activación
             </button>
           ) : null}
-          {u.id === yo?.id ? (
-            <span className="inline-flex min-h-10 items-center px-3 text-[13px] text-texto-3">
+          {!u.activado ? null : u.id === yo?.id ? (
+            <span className="inline-flex min-h-11 items-center px-3 text-[13px] text-texto-3">
               Es tu cuenta
             </span>
           ) : u.is_active ? (

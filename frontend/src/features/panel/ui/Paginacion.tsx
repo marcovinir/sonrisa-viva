@@ -15,7 +15,7 @@ export function Paginacion({
   const visibles = Array.from({ length: paginas }, (_, i) => i + 1).filter(
     (p) => p === 1 || p === paginas || Math.abs(p - pagina) <= 1,
   );
-  const boton = "size-10 rounded-[10px] border text-sm font-semibold disabled:opacity-40";
+  const boton = "size-11 rounded-[10px] border text-sm font-semibold disabled:opacity-40";
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[#F1EEE8] px-4 py-3.5 text-[13px] text-texto-2">

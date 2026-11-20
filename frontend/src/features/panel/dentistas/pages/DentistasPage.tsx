@@ -201,7 +201,9 @@ export function DentistasPage() {
                         ) : (
                           <Insignia texto="Oculto en la web" tono="aviso" />
                         )}
-                        {!d.usuario.is_active ? (
+                        {!d.usuario.activado ? (
+                          <Insignia texto="Pendiente de activar" tono="aviso" />
+                        ) : !d.usuario.is_active ? (
                           <Insignia texto="Cuenta inactiva" tono="peligro" />
                         ) : null}
                       </span>

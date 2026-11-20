@@ -22,6 +22,7 @@ const dentista = (id: number, nombre: string, apellidos: string): DentistaPanel 
     nombre,
     apellidos,
     is_active: true,
+    activado: true,
   },
   especialidad: "Odontología general",
   biografia: "",

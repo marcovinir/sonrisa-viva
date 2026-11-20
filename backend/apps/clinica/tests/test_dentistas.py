@@ -124,3 +124,17 @@ def test_admin_sin_perfil_mi_perfil_404(db):
 
 def test_dentista_no_entra_a_panel_dentistas_403(dentista):
     assert cliente_de(dentista.usuario).get("/api/v1/panel/dentistas/").status_code == 403
+
+
+def test_panel_dice_si_el_dentista_activo_su_cuenta(admin, dentista):
+    dentista.usuario.set_password("Clave-Segura-2026")
+    dentista.usuario.save()
+    pendiente = crear_dentista("pendiente@x.test")
+    pendiente.usuario.set_unusable_password()
+    pendiente.usuario.is_active = False
+    pendiente.usuario.save()
+    filas = admin.get("/api/v1/panel/dentistas/").json()["results"]
+    usuarios = {d["usuario"]["email"]: d["usuario"] for d in filas}
+    assert usuarios["dra@x.test"]["activado"] is True
+    assert usuarios["pendiente@x.test"]["activado"] is False
+    assert usuarios["pendiente@x.test"]["is_active"] is False

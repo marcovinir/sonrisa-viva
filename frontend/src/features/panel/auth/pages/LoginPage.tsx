@@ -67,7 +67,10 @@ export function LoginPage() {
             <label htmlFor="clave" className="text-sm font-bold">
               Contraseña
             </label>
-            <Link to="/panel/recuperar" className="text-[13px] font-semibold text-petroleo">
+            <Link
+              to="/panel/recuperar"
+              className="relative text-[13px] font-semibold text-petroleo before:absolute before:-inset-x-2 before:-inset-y-3 before:content-['']"
+            >
               ¿La olvidaste?
             </Link>
           </div>
@@ -109,7 +112,10 @@ export function LoginPage() {
         <Boton type="submit" tamano="lg" cargando={login.isPending} textoCargando="Entrando…">
           Entrar
         </Boton>
-        <Link to="/" className="py-2 text-center text-sm font-semibold text-petroleo">
+        <Link
+          to="/"
+          className="flex min-h-11 items-center justify-center text-sm font-semibold text-petroleo"
+        >
           ← Volver al sitio
         </Link>
       </form>
