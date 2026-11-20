@@ -1,4 +1,4 @@
-"""Producción: Vercel (función Python) + Supabase (pooler) + Brevo (SMTP)."""
+"""Producción: Vercel (función Python) + Supabase (pooler) + Resend (SMTP)."""
 
 import os
 
@@ -32,10 +32,11 @@ CACHES = {
 }
 
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-EMAIL_HOST = "smtp-relay.brevo.com"
+# SMTP de Resend: usuario fijo «resend» y la API key como contraseña.
+EMAIL_HOST = "smtp.resend.com"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", "")
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", "resend")
 EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "")
 EMAIL_TIMEOUT = 10
 
