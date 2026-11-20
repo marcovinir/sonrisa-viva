@@ -34,6 +34,16 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = "config.urls"
+
+# Solo para las plantillas de los correos (la API responde JSON).
+TEMPLATES = [
+    {
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [],
+        "APP_DIRS": True,
+        "OPTIONS": {},
+    }
+]
 WSGI_APPLICATION = "config.wsgi.application"
 
 DATABASES = {"default": dj_database_url.config(conn_max_age=0)}

@@ -29,6 +29,7 @@ const servicio = (
   nombre,
   slug: nombre.toLowerCase().replace(/ /g, "-"),
   descripcion: "",
+  indicaciones: "",
   duracion_min,
   precio_colones,
   activo,
@@ -175,6 +176,21 @@ describe("Servicios", () => {
       expect(within(await fila("Limpieza dental")).getByText("₡27 500")).toBeInTheDocument(),
     );
     expect(cuerpos[0]).toMatchObject({ metodo: "PATCH", cuerpo: { precio_colones: 27500 } });
+  });
+
+  it("editar las indicaciones para el paciente las envía", async () => {
+    renderEn("/panel/servicios");
+    await userEvent.click(await fila("Limpieza dental"));
+    const panel = screen.getByRole("complementary", { name: "Editar servicio" });
+    const campo = within(panel).getByLabelText("Indicaciones para el paciente");
+    expect(within(panel).getByText(/Salen en el correo de confirmación/)).toBeInTheDocument();
+    await userEvent.type(campo, "Ven sin haber comido.");
+    await userEvent.click(within(panel).getByRole("button", { name: "Guardar cambios" }));
+    expect(await screen.findByText("Cambios guardados")).toBeInTheDocument();
+    expect(cuerpos[0]).toMatchObject({
+      metodo: "PATCH",
+      cuerpo: { indicaciones: "Ven sin haber comido." },
+    });
   });
 
   it("borrar con 409 muestra el detalle y conserva la fila", async () => {

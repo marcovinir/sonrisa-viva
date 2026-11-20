@@ -8,6 +8,8 @@ export type ServicioPanel = {
   nombre: string;
   slug: string;
   descripcion: string;
+  /** Sale en el correo de confirmación como «Antes de tu cita». */
+  indicaciones: string;
   duracion_min: number;
   precio_colones: number;
   activo: boolean;

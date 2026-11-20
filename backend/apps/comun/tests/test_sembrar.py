@@ -52,3 +52,10 @@ def test_sembrar_reiniciar_regenera(db):
     assert Cita.objects.count() == citas
     assert Dentista.objects.count() == 4
     assert Usuario.objects.filter(pk=otro_admin.pk).exists()
+
+
+def test_sembrar_trae_indicaciones_para_algunos_servicios(db):
+    call_command("sembrar", stdout=StringIO())
+    con = Servicio.objects.exclude(indicaciones="")
+    assert con.count() >= 4
+    assert "brackets" in Servicio.objects.get(slug="control-brackets").indicaciones

@@ -25,6 +25,8 @@ class Servicio(models.Model):
     nombre = models.CharField(max_length=120)
     slug = models.SlugField(max_length=140, unique=True)
     descripcion = models.TextField(blank=True)
+    # Lo que el paciente debe saber antes de venir; sale en el correo de confirmación.
+    indicaciones = models.TextField(blank=True, default="")
     duracion_min = models.PositiveSmallIntegerField()
     precio_colones = models.IntegerField()
     activo = models.BooleanField(default=True)

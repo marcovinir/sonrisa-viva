@@ -8,6 +8,16 @@ CLAVE_DEMO_POR_DEFECTO = "Demo-Sonrisa-2026"
 CATEGORIAS = ["Preventiva", "Estética", "Ortodoncia", "Restauración", "Cirugía"]
 
 # (categoría, nombre, slug, duración en minutos, precio en colones, descripción)
+# Lo que sale en el correo de confirmación como «Antes de tu cita» (el resto usa el general).
+INDICACIONES = {
+    "limpieza-dental": "Cepíllate como de costumbre; si tienes sensibilidad, cuéntanos al llegar.",
+    "blanqueamiento": "Evita café, té y vino tinto las 24 horas previas.",
+    "control-brackets": "Trae tu kit de limpieza de brackets y avísanos si algún bracket "
+    "está suelto.",
+    "endodoncia": "Come algo liviano antes de venir: la zona quedará anestesiada unas horas.",
+    "extraccion-simple": "Come antes de la cita y planea descansar el resto del día.",
+}
+
 SERVICIOS = [
     (
         "Preventiva",

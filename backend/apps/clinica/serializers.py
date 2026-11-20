@@ -50,6 +50,7 @@ class ServicioPanelSerializer(serializers.ModelSerializer):
             "nombre",
             "slug",
             "descripcion",
+            "indicaciones",
             "duracion_min",
             "precio_colones",
             "activo",
