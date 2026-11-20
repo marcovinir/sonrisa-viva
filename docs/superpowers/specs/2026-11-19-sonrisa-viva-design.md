@@ -11,7 +11,7 @@ No hay prisa: se prefiere un proyecto **completo y bien hecho** antes que uno r�
 ## 2. Objetivos, no-objetivos y anti-objetivos
 
 **Objetivos**
-- Una landing de una sola página con las secciones: hero, quiénes somos y misión, servicios, equipo, testimonios y contacto.
+- Una landing de una sola página con scroll. Arriba, un **header fijo** con el logo, un menú que lleva a cada sección (Inicio, Nosotros, Servicios, Equipo, Contacto) y el botón «Agenda tu cita»; en móvil, el menú se vuelve hamburguesa. Las secciones: hero, quiénes somos y misión, servicios, equipo, testimonios y contacto. Abajo, un **footer** con datos de contacto, horario, redes y un enlace discreto «Acceso personal» a `/panel/login`.
 - Un flujo de reserva **sin cuenta de paciente**: servicio → dentista (o «cualquiera») → día → hora libre → datos → confirmación.
 - Un correo de confirmación con un **enlace para cancelar o reprogramar** la cita, sin necesidad de iniciar sesión.
 - Un `/panel` en React con inicio de sesión personalizado y roles **Admin** y **Dentista**.
