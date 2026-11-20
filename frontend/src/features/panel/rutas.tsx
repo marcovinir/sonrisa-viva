@@ -2,6 +2,7 @@ import type { RouteObject } from "react-router";
 import { AgendaPage } from "./agenda/pages/AgendaPage";
 import { CitasPage } from "./citas/pages/CitasPage";
 import { ServiciosPage } from "./servicios/pages/ServiciosPage";
+import { DentistasPage } from "./dentistas/pages/DentistasPage";
 import { ActivarPage } from "./auth/pages/ActivarPage";
 import { LoginPage } from "./auth/pages/LoginPage";
 import { RecuperarPage } from "./auth/pages/RecuperarPage";
@@ -31,7 +32,7 @@ export const rutasPanel: RouteObject[] = [
       seccion("agenda", <AgendaPage />),
       seccion("citas", <CitasPage />),
       seccion("servicios", <ServiciosPage />),
-      seccion("dentistas", <EnConstruccion titulo="Dentistas" />),
+      seccion("dentistas", <DentistasPage />),
       seccion("usuarios", <EnConstruccion titulo="Usuarios" />),
       seccion("reportes", <EnConstruccion titulo="Reportes" />),
       { path: "*", element: <IrAPrimeraSeccion /> },
