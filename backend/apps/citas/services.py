@@ -12,7 +12,7 @@ from apps.cuentas.managers import normalizar_email
 
 from . import correos, reglas, selectors
 from .asignacion import EstrategiaAsignacion, MenosCitasDelDia
-from .models import Cita, Paciente
+from .models import Cita, EstadoCita, Paciente
 from .tokens import generar_token
 
 
@@ -87,3 +87,43 @@ def reservar(
         paciente_obj.email, correos.ASUNTO_CONFIRMADA, correos.texto_confirmada(cita, token)
     )
     return cita, token
+
+
+# --- Gestión por el paciente (enlace) ------------------------------------------------
+
+
+def puede_cambiar(cita: Cita) -> bool:
+    return cita.estado == EstadoCita.CONFIRMADA and (
+        cita.inicio - reglas.ahora() >= reglas.LIMITE_CAMBIOS
+    )
+
+
+def _exigir_cambiable(cita: Cita) -> None:
+    if cita.estado != EstadoCita.CONFIRMADA:
+        raise ValidationError(reglas.NO_MODIFICABLE)
+    if not puede_cambiar(cita):
+        raise ValidationError(reglas.FUERA_DE_PLAZO)
+
+
+def reprogramar(cita: Cita, nuevo_inicio: datetime, notificador: Notificador | None = None) -> Cita:
+    """Mueve la cita (mismo servicio y dentista) a otra hora libre."""
+    _exigir_cambiable(cita)
+    _hora_ofrecida(cita.servicio, nuevo_inicio, cita.dentista, excluir=cita)
+    duracion = cita.fin - cita.inicio  # la foto de la reserva, aunque el servicio cambie
+    cita.inicio = nuevo_inicio
+    cita.fin = nuevo_inicio + duracion
+    _guardar(cita)
+    (notificador or obtener_notificador()).enviar(
+        cita.paciente.email, correos.ASUNTO_REPROGRAMADA, correos.texto_reprogramada(cita)
+    )
+    return cita
+
+
+def cancelar_por_paciente(cita: Cita, notificador: Notificador | None = None) -> Cita:
+    _exigir_cambiable(cita)
+    cita.estado = EstadoCita.CANCELADA
+    cita.save(update_fields=["estado"])
+    (notificador or obtener_notificador()).enviar(
+        cita.paciente.email, correos.ASUNTO_CANCELADA, correos.texto_cancelada(cita)
+    )
+    return cita

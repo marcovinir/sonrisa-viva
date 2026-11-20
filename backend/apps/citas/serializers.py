@@ -20,6 +20,10 @@ class ReservaSerializer(serializers.Serializer):
     paciente = PacienteReservaSerializer()
 
 
+class ReprogramarSerializer(serializers.Serializer):
+    inicio = serializers.DateTimeField()
+
+
 class ResumenCitaSerializer(serializers.ModelSerializer):
     servicio = serializers.SerializerMethodField()
     dentista = serializers.SerializerMethodField()
