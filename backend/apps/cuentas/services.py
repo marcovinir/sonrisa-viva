@@ -59,8 +59,20 @@ def _usuario_del_enlace(uid: str, token: str) -> Usuario:
     return usuario
 
 
-def establecer_contrasena(uid: str, token: str, password: str) -> Usuario:
+def establecer_contrasena(
+    uid: str, token: str, password: str, tipo: Literal["activar", "restablecer"] = "activar"
+) -> Usuario:
+    """Activa una cuenta nueva o restablece la contraseña de una cuenta activa.
+
+    - "activar" solo sirve para cuentas que nunca tuvieron contraseña.
+    - "restablecer" solo sirve para cuentas activas: un enlace pedido antes de que el admin
+      desactivara la cuenta no la puede reactivar.
+    """
     usuario = _usuario_del_enlace(uid, token)
+    if tipo == "activar" and usuario.has_usable_password():
+        raise TokenInvalido
+    if tipo == "restablecer" and not usuario.is_active:
+        raise TokenInvalido
     try:
         validate_password(password, usuario)
     except DjangoValidationError as e:
