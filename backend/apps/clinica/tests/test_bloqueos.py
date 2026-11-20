@@ -74,7 +74,17 @@ def test_bloqueo_sobre_cita_confirmada_409(admin, dentista, servicio):
     r = admin.post(URL, datos(dentista), format="json")
     assert r.status_code == 409
     assert r.json()["detalle"] == (
-        "Hay 1 citas confirmadas en ese rango; cancélalas o reprográmalas primero."
+        "Hay 1 cita confirmada en ese rango; cancélala o reprográmala primero."
+    )
+
+
+def test_bloqueo_con_varias_citas_usa_plural(admin, dentista, servicio):
+    cita(dentista, servicio, h(9), h(10))
+    cita(dentista, servicio, h(10), h(11))
+    r = admin.post(URL, datos(dentista), format="json")
+    assert r.status_code == 409
+    assert r.json()["detalle"] == (
+        "Hay 2 citas confirmadas en ese rango; cancélalas o reprográmalas primero."
     )
 
 

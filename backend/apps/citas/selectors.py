@@ -46,6 +46,7 @@ def _calcular(
     dias: list[date],
     dentista: Dentista | None = None,
     excluir_cita: Cita | None = None,
+    duracion: timedelta | None = None,
 ) -> dict[date, list[HoraLibre]]:
     """Horas libres de varios días con una consulta por tabla (no una por dentista o día)."""
     resultado: dict[date, list[HoraLibre]] = {d: [] for d in dias}
@@ -75,7 +76,8 @@ def _calcular(
     for b in Bloqueo.objects.filter(dentista_id__in=ids, inicio__lt=rango_fin, fin__gt=rango_ini):
         ocupados[b.dentista_id].append((b.inicio, b.fin))
 
-    duracion = timedelta(minutes=servicio.duracion_min)
+    # Al reprogramar se usa la duración de la cita, que puede ser distinta a la actual.
+    duracion = duracion or timedelta(minutes=servicio.duracion_min)
     for dia in dias:
         libres: dict[datetime, list[int]] = defaultdict(list)
         for pk in sorted(ids):
@@ -96,8 +98,9 @@ def disponibilidad(
     fecha: date,
     dentista: Dentista | None = None,
     excluir_cita: Cita | None = None,
+    duracion: timedelta | None = None,
 ) -> list[HoraLibre]:
-    return _calcular(servicio, [fecha], dentista, excluir_cita)[fecha]
+    return _calcular(servicio, [fecha], dentista, excluir_cita, duracion)[fecha]
 
 
 def dias_con_disponibilidad(

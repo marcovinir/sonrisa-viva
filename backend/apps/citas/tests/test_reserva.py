@@ -66,15 +66,36 @@ def test_respuesta_tiene_resumen_sin_token(listo, servicio):
     assert "token" not in str(r).lower()
 
 
-def test_reserva_reutiliza_paciente_por_correo_y_actualiza_telefono(listo, servicio):
+def test_reserva_con_correo_existente_no_cambia_nombre_ni_telefono(listo, servicio):
     reservar(servicio, h(9))
-    reservar(
+    r = reservar(
         servicio,
         h(10),
-        paciente={**PACIENTE, "email": " carlos@CORREO.test", "telefono": "7777-7777"},
+        paciente={
+            **PACIENTE,
+            "nombre": "Otro",
+            "email": " carlos@CORREO.test",
+            "telefono": "7777-7777",
+        },
     )
+    assert r.status_code == 201, r.json()
     assert Paciente.objects.count() == 1
-    assert Paciente.objects.get().telefono == "7777-7777"
+    paciente = Paciente.objects.get()
+    assert (paciente.nombre, paciente.apellidos, paciente.telefono) == (
+        "Carlos",
+        "Solís",
+        "8888-8888",
+    )
+
+
+def test_datos_distintos_quedan_anotados_en_la_cita(listo, servicio):
+    reservar(servicio, h(9))
+    reservar(servicio, h(10), paciente={**PACIENTE, "nombre": "Otro", "telefono": "7777-7777"})
+    reservar(servicio, h(11))  # mismos datos: no hace falta anotar nada
+    primera, segunda, tercera = Cita.objects.order_by("inicio")
+    assert primera.notas_internas == ""
+    assert segunda.notas_internas == ("En la reserva escribió: Otro Solís, teléfono 7777-7777.")
+    assert tercera.notas_internas == ""
 
 
 def test_reserva_cualquiera_asigna_dentista_con_menos_citas(listo, servicio):

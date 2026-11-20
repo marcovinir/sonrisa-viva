@@ -17,11 +17,15 @@ from .tokens import generar_token
 
 
 def _hora_ofrecida(
-    servicio: Servicio, inicio: datetime, dentista: Dentista | None, excluir: Cita | None = None
+    servicio: Servicio,
+    inicio: datetime,
+    dentista: Dentista | None,
+    excluir: Cita | None = None,
+    duracion: timedelta | None = None,
 ) -> selectors.HoraLibre:
     """La hora tal como la ofrece el motor; si no la ofrece, el pedido no es válido."""
     for hora in selectors.disponibilidad(
-        servicio, reglas.fecha_local(inicio), dentista, excluir_cita=excluir
+        servicio, reglas.fecha_local(inicio), dentista, excluir_cita=excluir, duracion=duracion
     ):
         if hora["inicio"] == inicio:
             return hora
@@ -36,6 +40,28 @@ def _guardar(cita: Cita) -> Cita:
         # cita_sin_traslape: otra persona ganó la misma hora entre la consulta y el guardado.
         raise Conflicto(reglas.HORA_OCUPADA) from None
     return cita
+
+
+def _paciente_de(datos: dict) -> tuple[Paciente, str]:
+    """El paciente del correo, sin sobrescribir sus datos si ya existía.
+
+    Quien conozca un correo no puede cambiar el nombre ni el teléfono que ve la clínica:
+    si escribió otros datos, quedan como nota en la cita para que la clínica los revise.
+    """
+    paciente, creado = Paciente.objects.get_or_create(
+        email=normalizar_email(datos["email"]),
+        defaults={
+            "nombre": datos["nombre"],
+            "apellidos": datos["apellidos"],
+            "telefono": datos["telefono"],
+        },
+    )
+    escritos = (datos["nombre"].strip(), datos["apellidos"].strip(), datos["telefono"].strip())
+    guardados = (paciente.nombre, paciente.apellidos, paciente.telefono)
+    if creado or escritos == guardados:
+        return paciente, ""
+    nombre, apellidos, telefono = escritos
+    return paciente, f"En la reserva escribió: {nombre} {apellidos}, teléfono {telefono}."
 
 
 def reservar(
@@ -62,14 +88,7 @@ def reservar(
     )
 
     with transaction.atomic():
-        paciente_obj, _ = Paciente.objects.update_or_create(
-            email=normalizar_email(paciente["email"]),
-            defaults={
-                "nombre": paciente["nombre"],
-                "apellidos": paciente["apellidos"],
-                "telefono": paciente["telefono"],
-            },
-        )
+        paciente_obj, nota = _paciente_de(paciente)
         token, token_hash = generar_token()
         cita = _guardar(
             Cita(
@@ -79,6 +98,7 @@ def reservar(
                 inicio=inicio,
                 fin=inicio + timedelta(minutes=servicio.duracion_min),
                 precio_colones=servicio.precio_colones,
+                notas_internas=nota,
                 token_gestion_hash=token_hash,
             )
         )
@@ -111,8 +131,8 @@ def _exigir_cambiable(cita: Cita) -> None:
 def reprogramar(cita: Cita, nuevo_inicio: datetime, notificador: Notificador | None = None) -> Cita:
     """Mueve la cita (mismo servicio y dentista) a otra hora libre."""
     _exigir_cambiable(cita)
-    _hora_ofrecida(cita.servicio, nuevo_inicio, cita.dentista, excluir=cita)
     duracion = cita.fin - cita.inicio  # la foto de la reserva, aunque el servicio cambie
+    _hora_ofrecida(cita.servicio, nuevo_inicio, cita.dentista, excluir=cita, duracion=duracion)
     cita.inicio = nuevo_inicio
     cita.fin = nuevo_inicio + duracion
     _guardar(cita)

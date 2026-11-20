@@ -54,6 +54,7 @@ def _en_rejilla(t: time) -> bool:
 
 
 BLOQUEO_CON_CITAS = "Hay {n} citas confirmadas en ese rango; cancélalas o reprográmalas primero."
+BLOQUEO_CON_UNA_CITA = "Hay 1 cita confirmada en ese rango; cancélala o reprográmala primero."
 
 
 @transaction.atomic
@@ -69,7 +70,7 @@ def guardar_bloqueo(
         dentista=dentista, estado=EstadoCita.CONFIRMADA, inicio__lt=fin, fin__gt=inicio
     ).count()
     if n:
-        raise Conflicto(BLOQUEO_CON_CITAS.format(n=n))
+        raise Conflicto(BLOQUEO_CON_UNA_CITA if n == 1 else BLOQUEO_CON_CITAS.format(n=n))
     bloqueo = bloqueo or Bloqueo(dentista=dentista)
     bloqueo.dentista, bloqueo.inicio, bloqueo.fin, bloqueo.motivo = dentista, inicio, fin, motivo
     bloqueo.save()

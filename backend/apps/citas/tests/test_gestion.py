@@ -108,3 +108,27 @@ def test_reprogramar_conserva_dentista_y_precio(reservada):
     cliente_de().patch(url(token), {"inicio": h(14).isoformat()}, format="json")
     cita = Cita.objects.get(pk=cita.pk)
     assert (cita.dentista_id, cita.precio_colones, cita.token_gestion_hash) == antes
+
+
+def test_reprogramar_conserva_la_duracion_original_aunque_el_servicio_cambie(reservada, servicio):
+    cita, token = reservada
+    servicio.duracion_min = 120
+    servicio.save()
+    r = cliente_de().patch(url(token), {"inicio": h(14).isoformat()}, format="json")
+    assert r.status_code == 200, r.json()
+    cita.refresh_from_db()
+    assert (cita.inicio, cita.fin) == (h(14), h(15))
+
+
+def test_el_hueco_se_valida_con_la_duracion_de_la_cita(reservada, servicio):
+    _, token = reservada
+    # El servicio ahora dura 120 min, pero la cita dura 60: a las 16:00 cabe antes del cierre.
+    servicio.duracion_min = 120
+    servicio.save()
+    r = cliente_de().patch(url(token), {"inicio": h(16).isoformat()}, format="json")
+    assert r.status_code == 200, r.json()
+    # Al revés: si el servicio se acorta a 30, la cita de 60 no cabe a las 16:30.
+    servicio.duracion_min = 30
+    servicio.save()
+    r = cliente_de().patch(url(token), {"inicio": h(16, 30).isoformat()}, format="json")
+    assert r.status_code == 400
