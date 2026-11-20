@@ -1,7 +1,11 @@
 import "@testing-library/jest-dom/vitest";
-import { cleanup } from "@testing-library/react";
+import { cleanup, configure } from "@testing-library/react";
 import { afterAll, afterEach, beforeAll } from "vitest";
 import { servidor } from "./servidor";
+
+// Las secciones del panel se cargan con React.lazy: la primera prueba de cada archivo espera
+// ese import dinámico, que en un equipo cargado puede pasar del segundo por defecto.
+configure({ asyncUtilTimeout: 3000 });
 
 // jsdom no implementa <dialog>: lo justo para showModal/close y el evento cancel con Esc.
 if (typeof HTMLDialogElement !== "undefined" && !HTMLDialogElement.prototype.showModal) {
