@@ -31,10 +31,12 @@ def enlace_para(usuario: Usuario, tipo: Literal["activar", "restablecer"]) -> st
 
 def enviar_enlace_activacion(usuario: Usuario, notificador: Notificador | None = None) -> None:
     notificador = notificador or obtener_notificador()
+    enlace = enlace_para(usuario, "activar")
     notificador.enviar(
         usuario.email,
         correos.ASUNTO_ACTIVACION,
-        correos.texto_activacion(usuario.nombre, enlace_para(usuario, "activar")),
+        correos.texto_activacion(usuario.nombre, enlace),
+        correos.html_activacion(usuario.nombre, enlace),
     )
 
 
@@ -43,10 +45,12 @@ def enviar_enlace_recuperacion(email: str, notificador: Notificador | None = Non
     if usuario is None:
         return  # Sin pistas: no revelamos qué correos existen.
     notificador = notificador or obtener_notificador()
+    enlace = enlace_para(usuario, "restablecer")
     notificador.enviar(
         usuario.email,
         correos.ASUNTO_RECUPERACION,
-        correos.texto_recuperacion(usuario.nombre, enlace_para(usuario, "restablecer")),
+        correos.texto_recuperacion(usuario.nombre, enlace),
+        correos.html_recuperacion(usuario.nombre, enlace),
     )
 
 

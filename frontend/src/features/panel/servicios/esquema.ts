@@ -21,6 +21,7 @@ export const servicioEsquema = z.object({
     .int("El precio va sin decimales.")
     .min(0, "El precio no puede ser negativo."),
   descripcion: z.string().max(2000, "La descripción puede tener hasta 2000 caracteres."),
+  indicaciones: z.string().max(500, "Las indicaciones pueden tener hasta 500 caracteres."),
   activo: z.boolean(),
 });
 

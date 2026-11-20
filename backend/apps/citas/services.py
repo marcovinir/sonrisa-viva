@@ -115,6 +115,8 @@ def reservar(
         paciente_obj.email,
         correos.ASUNTO_CONFIRMADA,
         correos.texto_confirmada(cita, token),
+        correos.html_confirmada(cita, token),
+        [correos.ics(cita)],
     )
     return cita, token
 
@@ -152,6 +154,8 @@ def reprogramar(cita: Cita, nuevo_inicio: datetime, notificador: Notificador | N
         cita.paciente.email,
         correos.ASUNTO_REPROGRAMADA,
         correos.texto_reprogramada(cita),
+        correos.html_reprogramada(cita),
+        [correos.ics(cita, secuencia=1)],
     )
     return cita
 
@@ -165,6 +169,7 @@ def cancelar_por_paciente(cita: Cita, notificador: Notificador | None = None) ->
         cita.paciente.email,
         correos.ASUNTO_CANCELADA,
         correos.texto_cancelada(cita),
+        correos.html_cancelada(cita),
     )
     return cita
 
@@ -208,5 +213,6 @@ def cambiar_estado(
             cita.paciente.email,
             correos.ASUNTO_CANCELADA_CLINICA,
             correos.texto_cancelada(cita, por_clinica=True),
+            correos.html_cancelada(cita, por_clinica=True),
         )
     return cita

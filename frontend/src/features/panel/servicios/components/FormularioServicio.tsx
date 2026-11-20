@@ -20,6 +20,7 @@ const CAMPOS: (keyof ServicioFormulario)[] = [
   "duracion_min",
   "precio_colones",
   "descripcion",
+  "indicaciones",
   "activo",
 ];
 
@@ -55,6 +56,7 @@ export function FormularioServicio({
           duracion_min: servicio.duracion_min,
           precio_colones: servicio.precio_colones,
           descripcion: servicio.descripcion,
+          indicaciones: servicio.indicaciones ?? "",
           activo: servicio.activo,
         }
       : {
@@ -62,6 +64,7 @@ export function FormularioServicio({
           categoria: categorias[0]?.id,
           duracion_min: 30,
           descripcion: "",
+          indicaciones: "",
           activo: true,
         },
   });
@@ -193,6 +196,15 @@ export function FormularioServicio({
           ayuda="Se muestra en la web, en la tarjeta del servicio."
           error={errors.descripcion?.message}
           {...register("descripcion")}
+        />
+        <Campo
+          as="textarea"
+          id="servicio-indicaciones"
+          etiqueta="Indicaciones para el paciente"
+          rows={2}
+          ayuda="Salen en el correo de confirmación como «Antes de tu cita». Si lo dejas vacío, va un texto general."
+          error={errors.indicaciones?.message}
+          {...register("indicaciones")}
         />
         <label className="flex min-h-11 items-center gap-2.5 text-sm font-semibold">
           <input type="checkbox" className="size-5 accent-petroleo" {...register("activo")} />

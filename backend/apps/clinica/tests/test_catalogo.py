@@ -116,3 +116,11 @@ def test_panel_filtra_servicios_por_activo(admin, servicio):
     r = admin.get("/api/v1/panel/servicios/?activo=false")
     assert r.json()["count"] == 0
     assert admin.get("/api/v1/panel/servicios/?activo=true").json()["count"] == 1
+
+
+def test_admin_edita_las_indicaciones_del_servicio(admin, servicio):
+    url = f"/api/v1/panel/servicios/{servicio.id}/"
+    assert admin.get(url).json()["indicaciones"] == ""
+    r = admin.patch(url, {"indicaciones": "Ven sin haber comido."}, format="json")
+    assert r.status_code == 200, r.json()
+    assert admin.get(url).json()["indicaciones"] == "Ven sin haber comido."

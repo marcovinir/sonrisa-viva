@@ -85,6 +85,7 @@ class Command(BaseCommand):
                 duracion_min=duracion,
                 precio_colones=precio,
                 descripcion=descripcion,
+                indicaciones=s.INDICACIONES.get(slug, ""),
             )
             for cat, nombre, slug, duracion, precio, descripcion in s.SERVICIOS
         }

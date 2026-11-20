@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>{{ asunto }}</title>
+</head>
+<body style="margin:0; padding:0; background:#F4F1EA;">
+<div style="display:none; max-height:0; overflow:hidden; opacity:0;">{{ resumen }}</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#F4F1EA;">
+<tr><td align="center" style="padding:24px 12px;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:560px; background:#FFFFFF; border:1px solid #E6DED0; border-radius:14px; overflow:hidden; font-family:Arial, Helvetica, sans-serif; color:#0E2F38;">
+  <tr><td style="background:#0E2F38; padding:20px 28px;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
+      <td width="40" valign="middle"><img src="{{ logo_url }}" width="34" height="34" alt="" style="display:block; border:0;"></td>
+      <td valign="middle" style="font-family:Georgia, 'Times New Roman', serif; font-size:22px; color:#F8F5EF; padding-left:6px;">Sonrisa Viva</td>
+      <td valign="middle" align="right" style="font-size:11px; letter-spacing:2px; color:#D9BC8C;">CLÍNICA DENTAL</td>
+    </tr></table>
+  </td></tr>
+  <tr><td style="padding:28px 28px 8px;">
+    <p style="margin:0 0 6px; font-size:12px; letter-spacing:2px; font-weight:bold; color:{{ color_etiqueta|default:'#8A6A3B' }};">{{ etiqueta }}</p>
+    <h1 style="margin:0 0 12px; font-family:Georgia, 'Times New Roman', serif; font-size:28px; line-height:1.2; font-weight:normal; color:#0E2F38;">{{ titulo }}</h1>
+    {% block contenido %}{% endblock %}
+    {% if boton_url %}
+    <table role="presentation" align="center" cellpadding="0" cellspacing="0" border="0" style="margin:22px auto 14px;"><tr>
+      <td align="center" style="background:#13505F; border-radius:999px;">
+        <a href="{{ boton_url }}" style="display:inline-block; padding:13px 28px; font-size:15px; font-weight:bold; color:#FFFFFF; text-decoration:none;">{{ boton_texto }}</a>
+      </td>
+    </tr></table>
+    {% endif %}
+    {% block despues_boton %}{% endblock %}
+  </td></tr>
+  <tr><td style="background:#F4F1EA; padding:18px 28px; font-size:12px; line-height:1.6; color:#5C6A70;">
+    Clínica Dental Sonrisa Viva · San José, Costa Rica · Lunes a viernes 8:00–17:00, sábados 8:00–12:00<br>
+    Sitio de demostración de portafolio: la clínica es ficticia.
+  </td></tr>
+</table>
+</td></tr>
+</table>
+</body>
+</html>
