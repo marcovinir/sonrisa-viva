@@ -7,7 +7,7 @@ import { PasoDentista } from "../components/PasoDentista";
 import { PasoHora } from "../components/PasoHora";
 import { PasoServicio } from "../components/PasoServicio";
 import { Pasos } from "../components/Pasos";
-import { ResumenCita } from "../components/ResumenCita";
+import { ResumenCita, ResumenCitaMovil } from "../components/ResumenCita";
 import { useAsistente } from "../estado";
 
 export function ReservaPage() {
@@ -70,6 +70,13 @@ export function ReservaPage() {
         ) : null}
         <div className="flex flex-wrap items-start gap-8">
           <div className="min-w-0 flex-[999_1_560px]">
+            <div className="lg:hidden">
+              <ResumenCitaMovil
+                servicio={servicio}
+                nombreDentista={nombreDentista}
+                inicio={inicio}
+              />
+            </div>
             {paso === "servicio" ? (
               <PasoServicio
                 elegido={servicioId}
@@ -111,7 +118,7 @@ export function ReservaPage() {
               />
             ) : null}
           </div>
-          <div className="min-w-0 flex-[1_1_300px]">
+          <div className="hidden min-w-0 flex-[1_1_300px] lg:block">
             <ResumenCita servicio={servicio} nombreDentista={nombreDentista} inicio={inicio} />
           </div>
         </div>

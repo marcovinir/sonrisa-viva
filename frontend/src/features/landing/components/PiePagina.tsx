@@ -20,10 +20,16 @@ export function PiePagina() {
           </div>
           <div className="flex flex-col gap-2.5">
             <strong className="text-marfil">Síguenos</strong>
-            <a href="#contacto" className="text-[#C9D6D9] hover:text-white">
+            <a
+              href="#contacto"
+              className="inline-flex min-h-11 items-center text-[#C9D6D9] hover:text-white"
+            >
               Instagram
             </a>
-            <a href="#contacto" className="text-[#C9D6D9] hover:text-white">
+            <a
+              href="#contacto"
+              className="inline-flex min-h-11 items-center text-[#C9D6D9] hover:text-white"
+            >
               Facebook
             </a>
           </div>
@@ -31,7 +37,10 @@ export function PiePagina() {
       </div>
       <div className="mx-auto flex max-w-[1200px] flex-wrap justify-between gap-4 border-t border-[#2B525C] px-5 pb-7 pt-5 text-[13px] md:px-8">
         <span>© 2026 Clínica Dental Sonrisa Viva · Proyecto de portafolio</span>
-        <Link to="/panel/login" className="text-[#C9D6D9] hover:text-white">
+        <Link
+          to="/panel/login"
+          className="inline-flex min-h-11 items-center text-[#C9D6D9] hover:text-white"
+        >
           Acceso personal
         </Link>
       </div>

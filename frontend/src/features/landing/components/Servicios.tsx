@@ -32,7 +32,7 @@ export function TarjetaServicio({ servicio, indice }: { servicio: Servicio; indi
           <Link
             to={`/reservar?servicio=${servicio.id}`}
             aria-label={`Agendar ${servicio.nombre}`}
-            className="py-2.5 font-bold text-petroleo no-underline"
+            className="inline-flex min-h-11 items-center gap-1 font-bold text-petroleo no-underline"
           >
             Agendar{" "}
             <span

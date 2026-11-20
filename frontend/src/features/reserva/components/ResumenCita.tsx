@@ -11,6 +11,44 @@ function Fila({ etiqueta, children }: { etiqueta: string; children: ReactNode })
   );
 }
 
+/** Versión para pantallas pequeñas: va arriba del paso y se puede plegar. */
+export function ResumenCitaMovil({
+  servicio,
+  nombreDentista,
+  inicio,
+}: {
+  servicio?: Servicio;
+  nombreDentista: string;
+  inicio: string | null;
+}) {
+  const cuando = inicio
+    ? `${fechaLarga(inicio).replace(/^./, (c) => c.toUpperCase())}, ${hora(inicio)}`
+    : "Sin elegir";
+  return (
+    <details className="group mb-6 rounded-2xl bg-tinta text-marfil">
+      <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-3 px-5 py-3 text-sm font-semibold [&::-webkit-details-marker]:hidden">
+        <span>{servicio ? `Tu cita: ${servicio.nombre}` : "Tu cita"}</span>
+        <span className="flex items-center gap-2 text-arena-claro">
+          {servicio ? colones(servicio.precio_colones) : null}
+          <span
+            aria-hidden="true"
+            className="transition-transform duration-300 group-open:rotate-180"
+          >
+            ▾
+          </span>
+        </span>
+      </summary>
+      <dl className="animar-in m-0 flex flex-col gap-3 border-t border-[#2B525C] px-5 pb-4 pt-3 text-sm">
+        <Fila etiqueta="SERVICIO">
+          {servicio ? `${servicio.nombre} · ${servicio.duracion_min} min` : "Sin elegir"}
+        </Fila>
+        <Fila etiqueta="DENTISTA">{nombreDentista}</Fila>
+        <Fila etiqueta="DÍA Y HORA">{cuando}</Fila>
+      </dl>
+    </details>
+  );
+}
+
 export function ResumenCita({
   servicio,
   nombreDentista,
