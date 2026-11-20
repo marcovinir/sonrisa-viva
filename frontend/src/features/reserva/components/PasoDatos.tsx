@@ -94,7 +94,13 @@ export function PasoDatos({
             onHoraPerdida(error.status === 409 ? "ocupada" : "no-disponible");
             return;
           }
-          const campos = error instanceof ApiError ? error.campos : {};
+          // El backend aplana los errores anidados: «paciente.email» es el campo «email».
+          const campos = Object.fromEntries(
+            Object.entries(error instanceof ApiError ? error.campos : {}).map(([c, m]) => [
+              c.replace(/^paciente\./, ""),
+              m,
+            ]),
+          );
           const propios = (Object.keys(campos) as (keyof PacienteFormulario)[]).filter(
             (c) => c in VACIO,
           );
