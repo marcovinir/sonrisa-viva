@@ -187,7 +187,7 @@ backend/
 
 ## 11. Estructura del frontend
 
-React 18 + **Vite + TypeScript**.
+React (la versión que traiga el template de Vite) + **Vite + TypeScript**.
 - **Navegación y datos:** React Router, TanStack Query para el estado del servidor y React Hook Form + Zod para los formularios.
 - **Estilos y gráficos:** Tailwind CSS para los estilos y Recharts para los reportes.
 
