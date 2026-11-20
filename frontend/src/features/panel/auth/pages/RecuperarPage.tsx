@@ -73,7 +73,10 @@ export function RecuperarPage() {
           </Boton>
         </form>
       )}
-      <Link to="/panel/login" className="py-2 text-center text-sm font-semibold text-petroleo">
+      <Link
+        to="/panel/login"
+        className="flex min-h-11 items-center justify-center text-sm font-semibold text-petroleo"
+      >
         ← Volver a iniciar sesión
       </Link>
     </MarcoCuenta>

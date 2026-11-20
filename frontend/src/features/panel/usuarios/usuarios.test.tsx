@@ -36,7 +36,7 @@ const usuario = (
 
 const perfil = (id: number, usuarioId: number, nombre: string): DentistaPanel => ({
   id,
-  usuario: { id: usuarioId, email: "", nombre, apellidos: "", is_active: true },
+  usuario: { id: usuarioId, email: "", nombre, apellidos: "", is_active: true, activado: true },
   especialidad: "",
   biografia: "",
   foto_url: "",
@@ -92,7 +92,8 @@ beforeEach(() => {
   usuarios = [
     usuario(1, "Admin", "Sonrisa Viva", "admin", { email: "admin@sonrisaviva.test" }),
     usuario(13, "Laura", "Vargas Rojas", "dentista"),
-    usuario(14, "Diego", "Quesada Araya", "dentista", { activado: false }),
+    // Como en el backend: la cuenta queda inactiva hasta que su dueño elige la contraseña.
+    usuario(14, "Diego", "Quesada Araya", "dentista", { activado: false, is_active: false }),
     usuario(15, "Ana", "Inactiva Mora", "admin", { is_active: false }),
     usuario(16, "Pablo", "Segundo Admin", "admin"),
   ];
@@ -259,6 +260,10 @@ describe("Usuarios", () => {
     const botones = screen.getAllByRole("button", { name: /^Reenviar activación/ });
     expect(botones).toHaveLength(1);
     expect(botones[0]).toHaveAccessibleName("Reenviar activación a Diego Quesada Araya");
+    const diego = await fila("diego@x.test");
+    expect(
+      within(diego).queryByRole("button", { name: /Reactivar|Desactivar/ }),
+    ).not.toBeInTheDocument();
     await userEvent.click(botones[0]);
     expect(
       await screen.findByText("Le reenviamos el correo de activación a diego@x.test."),

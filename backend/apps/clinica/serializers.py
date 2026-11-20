@@ -103,6 +103,11 @@ class UsuarioMiniSerializer(serializers.Serializer):
     nombre = serializers.CharField()
     apellidos = serializers.CharField()
     is_active = serializers.BooleanField()
+    # Una cuenta recién creada está inactiva hasta que su dueño elige la contraseña.
+    activado = serializers.SerializerMethodField()
+
+    def get_activado(self, usuario) -> bool:
+        return usuario.has_usable_password()
 
 
 class HorarioSerializer(serializers.ModelSerializer):

@@ -16,7 +16,7 @@ import { Filtros } from "../components/Filtros";
 import { useFiltrosCitas } from "../filtros";
 
 const BOTON_FILA =
-  "min-h-10 rounded-full px-3.5 text-[13px] transition-[transform,background-color] duration-200 motion-safe:hover:-translate-y-px";
+  "min-h-11 rounded-full px-3.5 text-[13px] transition-[transform,background-color] duration-200 motion-safe:hover:-translate-y-px";
 
 export function CitasPage() {
   const { yo, puede } = useSesion();

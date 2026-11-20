@@ -9,7 +9,7 @@ export function PanelLayout() {
       <AvisosProvider>
         <div className="flex min-h-screen flex-col bg-panel font-sans text-tinta lg:flex-row">
           <BarraLateral />
-          <main className="min-w-0 flex-1 px-5 py-6 md:px-8 md:py-7">
+          <main className="min-w-0 flex-1 overflow-x-clip px-5 py-6 md:px-8 md:py-7">
             <Outlet />
           </main>
         </div>

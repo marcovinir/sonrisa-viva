@@ -111,7 +111,10 @@ export function ActivarPage({ modo }: { modo: ModoContrasena }) {
         <BotonEnlace to="/panel/recuperar" tamano="lg">
           Pedir un enlace nuevo
         </BotonEnlace>
-        <Link to="/panel/login" className="py-2 text-center text-sm font-semibold text-petroleo">
+        <Link
+          to="/panel/login"
+          className="flex min-h-11 items-center justify-center text-sm font-semibold text-petroleo"
+        >
           Ir a iniciar sesión
         </Link>
       </MarcoCuenta>

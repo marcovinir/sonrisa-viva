@@ -138,29 +138,32 @@ export function GraficoMeses({ datos }: { datos: FilaMes[] }) {
               </BarChart>
             </ResponsiveContainer>
           </div>
-          <table className="sr-only">
-            <caption>Citas por mes</caption>
-            <thead>
-              <tr>
-                <th scope="col">Mes</th>
-                {SERIES.map((s) => (
-                  <th key={s.clave} scope="col">
-                    {s.nombre}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {puntos.map((p) => (
-                <tr key={p.mes}>
-                  <th scope="row">{mesLargo(p.mes)}</th>
+          {/* Un <table> ignora width: 1px; el div sr-only sí lo recorta. */}
+          <div className="sr-only">
+            <table>
+              <caption>Citas por mes</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Mes</th>
                   {SERIES.map((s) => (
-                    <td key={s.clave}>{p[s.clave]}</td>
+                    <th key={s.clave} scope="col">
+                      {s.nombre}
+                    </th>
                   ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {puntos.map((p) => (
+                  <tr key={p.mes}>
+                    <th scope="row">{mesLargo(p.mes)}</th>
+                    {SERIES.map((s) => (
+                      <td key={s.clave}>{p[s.clave]}</td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </>
       )}
     </figure>

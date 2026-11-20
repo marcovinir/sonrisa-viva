@@ -31,7 +31,8 @@
     font-family: var(--font-sans);
   }
   :focus-visible {
-    outline: 3px solid #6fa7b3;
+    /* Petróleo medio: ≥3:1 sobre blanco, marfil y la barra lateral oscura. */
+    outline: 3px solid #2f7f91;
     outline-offset: 3px;
   }
   button {

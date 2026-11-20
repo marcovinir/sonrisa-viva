@@ -122,7 +122,7 @@ export function GrillaSemana({
                       background: RAYADO_FRANJA,
                     }}
                   >
-                    <span className="text-[11px] font-bold uppercase tracking-[1px] text-[#8A9398]">
+                    <span className="text-[11px] font-bold uppercase tracking-[1px] text-texto-3">
                       {f.texto}
                     </span>
                   </div>
