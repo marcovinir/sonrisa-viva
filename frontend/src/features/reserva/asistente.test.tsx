@@ -64,6 +64,17 @@ describe("Asistente de reserva (servicio y dentista)", () => {
     await waitFor(() => expect(h1).toHaveFocus());
   });
 
+  it("en móvil hay un resumen plegable arriba del paso", async () => {
+    renderEn("/reservar?servicio=12");
+    const plegable = await screen.findByText("Tu cita: Limpieza dental");
+    expect(plegable.closest("summary")).not.toBeNull();
+    const details = plegable.closest("details")!;
+    expect(details).not.toHaveAttribute("open");
+    await userEvent.click(plegable);
+    expect(details).toHaveAttribute("open");
+    expect(within(details).getByText("₡25 000")).toBeInTheDocument();
+  });
+
   it("los pasos hechos son enlaces para volver", async () => {
     renderEn("/reservar?servicio=12&dentista=cualquiera");
     await titulo(/elige el día y la hora/i);

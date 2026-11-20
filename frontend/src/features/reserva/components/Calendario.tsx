@@ -119,7 +119,7 @@ export function Calendario({
               aria-pressed={elegido}
               aria-disabled={libre ? undefined : true}
               onClick={() => libre && onElegir(iso)}
-              className={`animar-in h-[42px] rounded-[10px] border text-sm font-semibold transition-[transform,background-color] duration-200 ${
+              className={`animar-in h-11 rounded-[10px] border text-sm font-semibold transition-[transform,background-color] duration-200 ${
                 elegido
                   ? "animar-pop border-petroleo bg-petroleo text-white"
                   : libre

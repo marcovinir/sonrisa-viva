@@ -58,7 +58,7 @@ export function Pasos({
             {hecho ? (
               <Link
                 to={hrefPaso(p)}
-                className="flex items-center gap-2.5 text-inherit no-underline"
+                className="-my-2.5 -ml-2.5 -mr-4 flex items-center gap-2.5 py-2.5 pl-2.5 pr-4 text-inherit no-underline"
               >
                 {numero}
                 {NOMBRES[p]}

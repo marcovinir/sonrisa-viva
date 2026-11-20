@@ -71,7 +71,7 @@ export function Equipo() {
                 <p className="m-0 text-sm leading-relaxed text-texto-2">{d.biografia}</p>
                 <Link
                   to={`/reservar?dentista=${d.id}`}
-                  className="py-1.5 text-sm font-bold text-petroleo no-underline"
+                  className="inline-flex min-h-11 items-center gap-1 self-start text-sm font-bold text-petroleo no-underline"
                 >
                   Agendar con {d.nombre}{" "}
                   <span
