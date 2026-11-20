@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { BotonEnlace } from "../../../shared/ui/Boton";
 import { Diente } from "../../../shared/ui/Diente";
 import { useSesion } from "../auth/useSesion";
@@ -6,6 +7,9 @@ import { nombreSeccion, seccionesDe } from "./secciones";
 export function SinAcceso() {
   const { yo } = useSesion();
   const primera = seccionesDe(yo)[0];
+  useEffect(() => {
+    document.title = "Sin acceso · Panel Sonrisa Viva";
+  }, []);
   return (
     <section className="flex max-w-lg flex-col items-start gap-4 py-10">
       <Diente tamano={40} trazo="#B8935A" />
