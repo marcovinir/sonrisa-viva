@@ -1,8 +1,12 @@
 import { useEffect } from "react";
+import { Contacto } from "../components/Contacto";
 import { Encabezado } from "../components/Encabezado";
+import { Equipo } from "../components/Equipo";
 import { Hero } from "../components/Hero";
 import { PiePagina } from "../components/PiePagina";
 import { Especialidades, Pasos, QuienesSomos } from "../components/Secciones";
+import { Servicios } from "../components/Servicios";
+import { Testimonios } from "../components/Testimonios";
 
 export function LandingPage() {
   useEffect(() => {
@@ -16,6 +20,10 @@ export function LandingPage() {
         <Especialidades />
         <Pasos />
         <QuienesSomos />
+        <Servicios />
+        <Equipo />
+        <Testimonios />
+        <Contacto />
       </main>
       <PiePagina />
     </div>
