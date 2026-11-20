@@ -138,3 +138,22 @@ export function fechaCorta(fecha: string | Date): string {
   const dia = NOMBRES_DIA[p.diaSemana].slice(0, 3);
   return `${dia[0].toUpperCase()}${dia.slice(1)} ${p.dia} ${NOMBRES_MES[p.mes - 1].slice(0, 3)}`;
 }
+
+/** Horas que abarca la grilla: 8–17 como mínimo, más lo que pidan el horario o las citas. */
+export function rangoGrilla(
+  horarios: BloqueHorario[],
+  citas: { inicio: string; fin: string }[],
+): { inicio: number; fin: number } {
+  const desde = [
+    ...horarios.map((h) => minutosHora(h.hora_inicio)),
+    ...citas.map((c) => minutosCR(c.inicio)),
+  ];
+  const hasta = [
+    ...horarios.map((h) => minutosHora(h.hora_fin)),
+    ...citas.map((c) => minutosCR(c.fin)),
+  ];
+  return {
+    inicio: Math.min(HORA_INICIO, ...desde.map((m) => Math.floor(m / 60))),
+    fin: Math.max(HORA_FIN, ...hasta.map((m) => Math.ceil(m / 60))),
+  };
+}

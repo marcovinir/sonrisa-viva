@@ -3,12 +3,11 @@ import { RAYADO_BLOQUEO, RAYADO_FRANJA } from "../estilos";
 import {
   diaSemanaDe,
   franjasDelDia,
-  HORA_FIN,
-  HORA_INICIO,
   horaCorta,
   minutosCR,
   posicion,
   PX_POR_HORA,
+  rangoGrilla,
   estadoVisual,
   type BloqueHorario,
 } from "../semana";
@@ -16,9 +15,6 @@ import { isoDia } from "../../../../shared/lib/formato";
 import { TarjetaCita } from "./TarjetaCita";
 
 const CORTOS = ["LUN", "MAR", "MIÉ", "JUE", "VIE", "SÁB"];
-const HORAS = Array.from({ length: HORA_FIN - HORA_INICIO }, (_, i) => `${HORA_INICIO + i}:00`);
-const ALTO = (HORA_FIN - HORA_INICIO) * PX_POR_HORA;
-const aTop = (min: number) => ((min - HORA_INICIO * 60) / 60) * PX_POR_HORA;
 
 export function GrillaSemana({
   dias,
@@ -38,8 +34,17 @@ export function GrillaSemana({
   onElegir: (id: number) => void;
 }) {
   const hoy = isoDia(ahora);
+  // La grilla se estira si el horario o alguna cita queda fuera de 8–17: nada queda oculto.
+  const rango = rangoGrilla(horarios ?? [], citas);
+  const horas = Array.from(
+    { length: rango.fin - rango.inicio },
+    (_, i) => `${rango.inicio + i}:00`,
+  );
+  const ALTO = (rango.fin - rango.inicio) * PX_POR_HORA;
+  const aTop = (min: number) => ((min - rango.inicio * 60) / 60) * PX_POR_HORA;
+  const hhmm = (h: number) => `${String(h).padStart(2, "0")}:00`;
   const minAhora = minutosCR(ahora);
-  const ahoraVisible = minAhora >= HORA_INICIO * 60 && minAhora <= HORA_FIN * 60;
+  const ahoraVisible = minAhora >= rango.inicio * 60 && minAhora <= rango.fin * 60;
 
   const delDia = (dia: string) => citas.filter((c) => isoDia(new Date(c.inicio)) === dia);
 
@@ -81,7 +86,7 @@ export function GrillaSemana({
 
         <div className="relative grid grid-cols-[70px_repeat(6,minmax(0,1fr))]">
           <div className="flex flex-col" aria-hidden="true">
-            {HORAS.map((h) => (
+            {horas.map((h) => (
               <div
                 key={h}
                 className="-translate-y-2 pr-2.5 text-right text-xs font-semibold text-texto-3"
@@ -95,7 +100,11 @@ export function GrillaSemana({
           {dias.map((dia, i) => {
             const esHoy = dia === hoy;
             const franjas = horarios
-              ? franjasDelDia(horarios.filter((h) => h.dia_semana === diaSemanaDe(dia)))
+              ? franjasDelDia(
+                  horarios.filter((h) => h.dia_semana === diaSemanaDe(dia)),
+                  rango.inicio,
+                  rango.fin,
+                )
               : [];
             const bloqueosDia = bloqueos.filter(
               (b) => isoDia(new Date(b.inicio)) <= dia && isoDia(new Date(b.fin)) >= dia,
@@ -130,9 +139,12 @@ export function GrillaSemana({
 
                 {bloqueosDia.map((b) => {
                   const inicio =
-                    isoDia(new Date(b.inicio)) < dia ? `${dia}T08:00:00-06:00` : b.inicio;
-                  const fin = isoDia(new Date(b.fin)) > dia ? `${dia}T17:00:00-06:00` : b.fin;
-                  const { top, alto } = posicion(inicio, fin);
+                    isoDia(new Date(b.inicio)) < dia
+                      ? `${dia}T${hhmm(rango.inicio)}:00-06:00`
+                      : b.inicio;
+                  const fin =
+                    isoDia(new Date(b.fin)) > dia ? `${dia}T${hhmm(rango.fin)}:00-06:00` : b.fin;
+                  const { top, alto } = posicion(inicio, fin, rango.inicio);
                   return (
                     <div
                       key={b.id}
@@ -171,6 +183,7 @@ export function GrillaSemana({
                 {delDia(dia).map((c) => (
                   <TarjetaCita
                     key={c.id}
+                    horaInicio={rango.inicio}
                     cita={c}
                     estado={estadoVisual(c, ahora)}
                     seleccionada={c.id === seleccionada}
