@@ -28,3 +28,23 @@ class EstablecerContrasenaSerializer(serializers.Serializer):
 
 class RecuperarSerializer(serializers.Serializer):
     email = serializers.CharField()
+
+
+class UsuarioPanelSerializer(serializers.ModelSerializer):
+    rol = serializers.CharField(source="rol.nombre", read_only=True)
+    activado = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Usuario
+        fields = ["id", "email", "nombre", "apellidos", "rol", "is_active", "activado", "creado_en"]
+        read_only_fields = ["email", "is_active", "creado_en"]
+
+    def get_activado(self, usuario: Usuario) -> bool:
+        return usuario.has_usable_password()
+
+
+class CrearUsuarioPanelSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    nombre = serializers.CharField(max_length=100)
+    apellidos = serializers.CharField(max_length=150)
+    rol = serializers.ChoiceField(choices=["admin", "dentista"])

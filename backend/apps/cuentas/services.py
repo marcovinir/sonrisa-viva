@@ -6,6 +6,7 @@ from django.conf import settings
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth.tokens import default_token_generator
 from django.core.exceptions import ValidationError as DjangoValidationError
+from django.db import transaction
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from rest_framework.exceptions import ValidationError
@@ -15,6 +16,7 @@ from apps.comun.notificaciones import Notificador, obtener_notificador
 from . import correos
 from .managers import normalizar_email
 from .models import Usuario
+from .permisos import ROL_ADMIN, ROL_DENTISTA
 
 
 class TokenInvalido(Exception):
@@ -81,3 +83,61 @@ def establecer_contrasena(
     usuario.is_active = True
     usuario.save(update_fields=["password", "is_active"])
     return usuario
+
+
+# --- Gestión de usuarios desde el panel ------------------------------------------------
+
+AUTO_DESACTIVAR = "No puedes desactivar tu propia cuenta."
+ULTIMO_ADMIN = "Debe quedar al menos un administrador activo."
+YA_ACTIVADO = "Este usuario ya activó su cuenta."
+EMAIL_DUPLICADO = "Ya existe un usuario con ese correo."
+
+
+@transaction.atomic
+def crear_usuario_panel(
+    email: str, nombre: str, apellidos: str, rol: str, notificador: Notificador | None = None
+) -> Usuario:
+    from apps.clinica.models import Dentista
+
+    if Usuario.objects.filter(email=normalizar_email(email)).exists():
+        raise ValidationError({"email": [EMAIL_DUPLICADO]})
+    usuario = Usuario.objects.crear_usuario(email, nombre, apellidos, rol)
+    if rol == ROL_DENTISTA:
+        Dentista.objects.create(usuario=usuario, visible_en_web=False)
+    enviar_enlace_activacion(usuario, notificador)
+    return usuario
+
+
+def desactivar_usuario(usuario: Usuario, hecho_por: Usuario) -> Usuario:
+    if usuario.pk == hecho_por.pk:
+        raise ValidationError(AUTO_DESACTIVAR)
+    if (
+        usuario.is_active
+        and usuario.rol.nombre == ROL_ADMIN
+        and not Usuario.objects.filter(rol__nombre=ROL_ADMIN, is_active=True)
+        .exclude(pk=usuario.pk)
+        .exists()
+    ):
+        raise ValidationError(ULTIMO_ADMIN)
+    usuario.is_active = False
+    campos = ["is_active"]
+    if not usuario.has_usable_password():
+        usuario.set_unusable_password()  # cambia el hash: invalida el enlace pendiente
+        campos.append("password")
+    usuario.save(update_fields=campos)
+    return usuario
+
+
+def reactivar_usuario(usuario: Usuario, notificador: Notificador | None = None) -> Usuario:
+    if usuario.has_usable_password():
+        usuario.is_active = True
+        usuario.save(update_fields=["is_active"])
+    else:
+        enviar_enlace_activacion(usuario, notificador)
+    return usuario
+
+
+def reenviar_activacion(usuario: Usuario, notificador: Notificador | None = None) -> None:
+    if usuario.has_usable_password():
+        raise ValidationError(YA_ACTIVADO)
+    enviar_enlace_activacion(usuario, notificador)
