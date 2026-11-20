@@ -1,4 +1,5 @@
 import type { RouteObject } from "react-router";
+import { AgendaPage } from "./agenda/pages/AgendaPage";
 import { ActivarPage } from "./auth/pages/ActivarPage";
 import { LoginPage } from "./auth/pages/LoginPage";
 import { RecuperarPage } from "./auth/pages/RecuperarPage";
@@ -25,7 +26,7 @@ export const rutasPanel: RouteObject[] = [
     element: <PanelLayout />,
     children: [
       { index: true, element: <IrAPrimeraSeccion /> },
-      seccion("agenda", <EnConstruccion titulo="Agenda" />),
+      seccion("agenda", <AgendaPage />),
       seccion("citas", <EnConstruccion titulo="Citas" />),
       seccion("servicios", <EnConstruccion titulo="Servicios" />),
       seccion("dentistas", <EnConstruccion titulo="Dentistas" />),

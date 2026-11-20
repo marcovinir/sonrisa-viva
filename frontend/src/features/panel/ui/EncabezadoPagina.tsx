@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 
 export function EncabezadoPagina({
   titulo,
@@ -9,6 +9,9 @@ export function EncabezadoPagina({
   descripcion?: ReactNode;
   acciones?: ReactNode;
 }) {
+  useEffect(() => {
+    document.title = `${titulo} · Panel Sonrisa Viva`;
+  }, [titulo]);
   return (
     <div className="animar-entrada mb-5 flex flex-wrap items-end justify-between gap-4">
       <div>

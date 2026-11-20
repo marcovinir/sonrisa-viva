@@ -1,13 +1,9 @@
-import { useEffect } from "react";
 import { Outlet } from "react-router";
 import { AvisosProvider } from "../ui/Avisos";
 import { BarraLateral } from "./BarraLateral";
 import { RutaPanel } from "./RutaPanel";
 
 export function PanelLayout() {
-  useEffect(() => {
-    document.title = "Panel · Sonrisa Viva";
-  }, []);
   return (
     <RutaPanel>
       <AvisosProvider>
