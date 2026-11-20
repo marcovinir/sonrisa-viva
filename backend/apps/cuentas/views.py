@@ -73,12 +73,13 @@ class EstablecerContrasenaView(APIView):
     permission_classes = [AllowAny]
     throttle_classes = [ScopedRateThrottle]
     throttle_scope = "login"
+    tipo = "activar"
 
     def post(self, request):
         datos = EstablecerContrasenaSerializer(data=request.data)
         datos.is_valid(raise_exception=True)
         try:
-            services.establecer_contrasena(**datos.validated_data)
+            services.establecer_contrasena(**datos.validated_data, tipo=self.tipo)
         except services.TokenInvalido:
             raise ValidationError({"non_field_errors": [MENSAJE_ENLACE_INVALIDO]}) from None
         return Response(status=status.HTTP_204_NO_CONTENT)

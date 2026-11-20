@@ -113,3 +113,32 @@ def test_restablecer_cambia_contrasena(cliente, db):
     r = cliente.post("/api/v1/auth/restablecer/", {**datos, "password": CLAVE_NUEVA}, format="json")
     assert r.status_code == 204
     assert Usuario.objects.get(email="admin@x.test").check_password(CLAVE_NUEVA)
+
+
+def test_restablecer_no_reactiva_usuario_desactivado(cliente, db):
+    u = Usuario.objects.crear_usuario(
+        "ex@x.test", "E", "X", "dentista", password="Vieja-Clave-2026", activo=True
+    )
+    enviar_enlace_recuperacion("ex@x.test")
+    datos = uid_y_token(NotificadorMemoria.enviados[0]["texto"], "restablecer")
+    u.is_active = False  # el admin lo desactiva después de que pidió el enlace
+    u.save(update_fields=["is_active"])
+    r = cliente.post("/api/v1/auth/restablecer/", {**datos, "password": CLAVE_NUEVA}, format="json")
+    assert r.status_code == 400
+    assert r.json()["detalle"] == ENLACE_INVALIDO
+    u.refresh_from_db()
+    assert not u.is_active
+
+
+def test_activar_no_sirve_para_cuenta_que_ya_tenia_contrasena(cliente, db):
+    u = Usuario.objects.crear_usuario(
+        "ex2@x.test", "E", "X", "dentista", password="Vieja-Clave-2026", activo=True
+    )
+    enviar_enlace_recuperacion("ex2@x.test")
+    datos = uid_y_token(NotificadorMemoria.enviados[0]["texto"], "restablecer")
+    u.is_active = False
+    u.save(update_fields=["is_active"])
+    r = cliente.post("/api/v1/auth/activar/", {**datos, "password": CLAVE_NUEVA}, format="json")
+    assert r.status_code == 400
+    u.refresh_from_db()
+    assert not u.is_active
