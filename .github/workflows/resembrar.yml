@@ -1,0 +1,37 @@
+name: Resembrar datos de ejemplo
+
+# Lunes y jueves a las 3:00 de Costa Rica (9:00 UTC): deja la demo limpia (cualquiera puede
+# entrar con los usuarios de ejemplo) y, de paso, evita que Supabase gratis se pause por
+# llevar ~7 días sin uso.
+on:
+  schedule:
+    - cron: "0 9 * * 1,4"
+  workflow_dispatch:
+
+concurrency:
+  group: base-de-produccion
+  cancel-in-progress: false
+
+jobs:
+  resembrar:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      DJANGO_SETTINGS_MODULE: config.settings.produccion
+      DATABASE_URL: ${{ secrets.DATABASE_URL_MIGRACIONES }}
+      SEMILLA_ADMIN_PASSWORD: ${{ secrets.SEMILLA_ADMIN_PASSWORD }}
+      SECRET_KEY: solo-para-comandos-de-gestion
+      ALLOWED_HOSTS: localhost
+      CSRF_TRUSTED_ORIGINS: https://sonrisa.marcovinir.dev
+      FRONTEND_URL: https://sonrisa.marcovinir.dev
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+      - run: pip install -r requirements.txt
+      - run: python manage.py sembrar --reiniciar
