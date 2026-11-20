@@ -1,13 +1,11 @@
-import { QueryClient } from "@tanstack/react-query";
 import { render } from "@testing-library/react";
 import { createMemoryRouter, RouterProvider } from "react-router";
 import { Providers } from "../app/providers";
+import { crearQueryClient } from "../app/queryClient";
 import { rutas } from "../app/router";
 
 export function clientePrueba() {
-  return new QueryClient({
-    defaultOptions: { queries: { retry: false, gcTime: 0 }, mutations: { retry: false } },
-  });
+  return crearQueryClient({ pruebas: true });
 }
 
 /** Renderiza la app completa en la ruta indicada (con todas las rutas reales). */

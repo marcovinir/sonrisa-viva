@@ -78,6 +78,11 @@ export const horaLibre = (hh: number, mm = 0, dentistas = [5]) => {
 };
 
 export const handlersBase = [
+  http.get("/api/v1/auth/yo/", () => new HttpResponse(null, { status: 403 })),
+  http.post("/api/v1/auth/logout/", () => new HttpResponse(null, { status: 204 })),
+  http.post("/api/v1/auth/login/", () =>
+    HttpResponse.json({ detalle: "Correo o contraseña incorrectos.", campos: {} }, { status: 400 }),
+  ),
   http.get("/api/v1/auth/csrf/", () => {
     document.cookie = "csrftoken=prueba; path=/";
     return new HttpResponse(null, { status: 204 });

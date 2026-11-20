@@ -1,6 +1,7 @@
 import { createBrowserRouter } from "react-router";
 import { GestionPage } from "../features/gestion-cita/pages/GestionPage";
 import { LandingPage } from "../features/landing/pages/LandingPage";
+import { rutasPanel } from "../features/panel/rutas";
 import { ConfirmadaPage } from "../features/reserva/pages/ConfirmadaPage";
 import { ReservaPage } from "../features/reserva/pages/ReservaPage";
 import { PaginaSimple } from "./paginas/PaginaSimple";
@@ -13,15 +14,7 @@ export const rutas = [
   { path: "/reservar", element: <ReservaPage /> },
   { path: "/reservar/confirmada", element: <ConfirmadaPage /> },
   { path: "/cita/:token", element: <GestionPage /> },
-  {
-    path: "/panel/*",
-    element: (
-      <PaginaSimple
-        titulo="Panel en construcción"
-        texto="El panel de la clínica llega en el Plan 4."
-      />
-    ),
-  },
+  ...rutasPanel,
   {
     path: "*",
     element: (
