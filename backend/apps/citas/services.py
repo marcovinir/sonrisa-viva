@@ -6,6 +6,7 @@ from django.db import IntegrityError, transaction
 from rest_framework.exceptions import ValidationError
 
 from apps.clinica.models import Dentista, Servicio
+from apps.clinica.services import bloquear_agenda, hay_bloqueo
 from apps.comun.errores import Conflicto
 from apps.comun.notificaciones import Notificador, enviar_sin_fallar, obtener_notificador
 from apps.cuentas.managers import normalizar_email
@@ -87,7 +88,13 @@ def reservar(
         libres, reglas.fecha_local(inicio)
     )
 
+    fin = inicio + timedelta(minutes=servicio.duracion_min)
     with transaction.atomic():
+        # Un bloqueo que se esté guardando a la vez no lo vio el motor: se vuelve a mirar ya
+        # con la agenda tomada.
+        bloquear_agenda(elegido.pk)
+        if hay_bloqueo(elegido.pk, inicio, fin):
+            raise Conflicto(reglas.HORA_OCUPADA)
         paciente_obj, nota = _paciente_de(paciente)
         token, token_hash = generar_token()
         cita = _guardar(
@@ -96,7 +103,7 @@ def reservar(
                 dentista=elegido,
                 servicio=servicio,
                 inicio=inicio,
-                fin=inicio + timedelta(minutes=servicio.duracion_min),
+                fin=fin,
                 precio_colones=servicio.precio_colones,
                 notas_internas=nota,
                 token_gestion_hash=token_hash,
@@ -133,9 +140,13 @@ def reprogramar(cita: Cita, nuevo_inicio: datetime, notificador: Notificador | N
     _exigir_cambiable(cita)
     duracion = cita.fin - cita.inicio  # la foto de la reserva, aunque el servicio cambie
     _hora_ofrecida(cita.servicio, nuevo_inicio, cita.dentista, excluir=cita, duracion=duracion)
-    cita.inicio = nuevo_inicio
-    cita.fin = nuevo_inicio + duracion
-    _guardar(cita)
+    with transaction.atomic():
+        bloquear_agenda(cita.dentista_id)
+        if hay_bloqueo(cita.dentista_id, nuevo_inicio, nuevo_inicio + duracion):
+            raise Conflicto(reglas.HORA_OCUPADA)
+        cita.inicio = nuevo_inicio
+        cita.fin = nuevo_inicio + duracion
+        _guardar(cita)
     enviar_sin_fallar(
         notificador or obtener_notificador(),
         cita.paciente.email,
