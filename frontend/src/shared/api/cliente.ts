@@ -17,7 +17,7 @@ export class ApiError extends Error {
 export const SIN_CONEXION =
   "No pudimos conectar con la clínica. Revisa tu conexión e intenta de nuevo.";
 
-type Metodo = "GET" | "POST" | "PATCH" | "DELETE";
+type Metodo = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 type Opciones = {
   metodo?: Metodo;
   cuerpo?: unknown;
