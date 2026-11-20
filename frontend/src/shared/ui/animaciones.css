@@ -167,3 +167,12 @@
     background: #efe8db;
   }
 }
+
+@keyframes sv-dibujar-check {
+  from {
+    stroke-dashoffset: 24;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
