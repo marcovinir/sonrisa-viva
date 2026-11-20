@@ -59,3 +59,26 @@ def _limpiar_throttles():
     from django.core.cache import cache
 
     cache.clear()
+
+
+def con_horario(dentista, servicio, dia: int = 0):
+    """Le da al dentista el servicio y un horario de 8 a 12 y de 13 a 17 el día indicado."""
+    from datetime import time
+
+    from apps.clinica.models import HorarioSemanal
+
+    dentista.servicios.add(servicio)
+    for ini, fin in ((time(8), time(12)), (time(13), time(17))):
+        HorarioSemanal.objects.create(
+            dentista=dentista, dia_semana=dia, hora_inicio=ini, hora_fin=fin
+        )
+    return dentista
+
+
+@pytest.fixture
+def domingo():
+    """Congela la hora en el domingo 1 de marzo de 2026 a las 7:00 (Costa Rica)."""
+    import time_machine
+
+    with time_machine.travel(h(7, 0, dia=1), tick=False):
+        yield
