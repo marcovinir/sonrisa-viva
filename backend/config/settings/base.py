@@ -57,6 +57,9 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": ["rest_framework.authentication.SessionAuthentication"],
     "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.IsAuthenticated"],
     "DEFAULT_RENDERER_CLASSES": ["rest_framework.renderers.JSONRenderer"],
+    "DEFAULT_PAGINATION_CLASS": "apps.comun.paginacion.PaginacionEstandar",
+    "PAGE_SIZE": 20,
+    "EXCEPTION_HANDLER": "apps.comun.errores.manejador_excepciones",
 }
 
 SESSION_COOKIE_HTTPONLY = True
@@ -65,3 +68,8 @@ CSRF_COOKIE_HTTPONLY = False
 CSRF_TRUSTED_ORIGINS = [o for o in os.environ.get("CSRF_TRUSTED_ORIGINS", "").split(",") if o]
 
 FRONTEND_URL = os.environ.get("FRONTEND_URL", "http://localhost:5173")
+
+NOTIFICADOR = "apps.comun.notificaciones.NotificadorCorreo"
+DEFAULT_FROM_EMAIL = os.environ.get(
+    "DEFAULT_FROM_EMAIL", "Sonrisa Viva <no-responder@sonrisaviva.test>"
+)

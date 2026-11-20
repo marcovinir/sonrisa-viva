@@ -43,3 +43,12 @@ def crear_dentista(email: str = "dra@x.test"):
 @pytest.fixture
 def dentista(db):
     return crear_dentista()
+
+
+@pytest.fixture(autouse=True)
+def _limpiar_notificaciones():
+    from apps.comun.notificaciones import NotificadorMemoria
+
+    NotificadorMemoria.limpiar()
+    yield
+    NotificadorMemoria.limpiar()
