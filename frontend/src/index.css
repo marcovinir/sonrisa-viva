@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./shared/ui/animaciones.css";
 
 @theme {
   --color-tinta: #0e2f38;
