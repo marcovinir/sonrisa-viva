@@ -1,6 +1,14 @@
 from rest_framework import serializers
 
-from .models import CategoriaServicio, Dentista, HorarioSemanal, Servicio
+from .models import Bloqueo, CategoriaServicio, Dentista, HorarioSemanal, Servicio
+
+
+class BloqueoSerializer(serializers.ModelSerializer):
+    dentista = serializers.PrimaryKeyRelatedField(queryset=Dentista.objects.all(), required=False)
+
+    class Meta:
+        model = Bloqueo
+        fields = ["id", "dentista", "inicio", "fin", "motivo"]
 
 
 class CategoriaSerializer(serializers.ModelSerializer):

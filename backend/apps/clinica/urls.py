@@ -7,6 +7,7 @@ router = SimpleRouter()
 router.register("panel/categorias", views.CategoriaPanelViewSet, basename="panel-categorias")
 router.register("panel/servicios", views.ServicioPanelViewSet, basename="panel-servicios")
 router.register("panel/dentistas", views.DentistaPanelViewSet, basename="panel-dentistas")
+router.register("panel/bloqueos", views.BloqueoPanelViewSet, basename="panel-bloqueos")
 
 urlpatterns = [
     path("servicios/", views.ServiciosPublicosView.as_view(), name="servicios-publicos"),
