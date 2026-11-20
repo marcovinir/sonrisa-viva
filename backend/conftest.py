@@ -52,3 +52,10 @@ def _limpiar_notificaciones():
     NotificadorMemoria.limpiar()
     yield
     NotificadorMemoria.limpiar()
+
+
+@pytest.fixture(autouse=True)
+def _limpiar_throttles():
+    from django.core.cache import cache
+
+    cache.clear()
